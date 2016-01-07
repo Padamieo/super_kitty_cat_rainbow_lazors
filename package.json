@@ -1,0 +1,19 @@
+{
+  "name": "SKCRL",
+  "version": "0.0.1",
+  "author": "Michael Adam Lockwood",
+  "private": true,
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-newer": "*",
+    "grunt-spritesmith": "*",
+    "grunt-contrib-imagemin": "*"
+  },
+  "dependencies": {
+    "bower": "*",
+    "time-grunt": "*"
+  }
+}

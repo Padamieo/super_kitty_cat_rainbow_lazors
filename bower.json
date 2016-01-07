@@ -1,0 +1,13 @@
+{
+	"name": "lua_plugins",
+	"version": "0.0.1",
+	"dependencies": {
+	},
+	"private": true,
+	"devDependencies": {
+		"anim8" : "https://github.com/kikito/anim8.git",
+		"LICK" : "https://github.com/headchant/LICK.git",
+		"hump" : "https://github.com/vrld/hump.git",
+		"SUIT" : "https://github.com/vrld/SUIT.git"
+	}
+}
