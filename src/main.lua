@@ -55,27 +55,35 @@ game = {}
 
 -- Load some default values for our rectangle.
 function game:enter()
+
+  world = {}
+  world = love.physics.newWorld(0, 9, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
+
   love.graphics.setBackgroundColor( 111, 10, 25 )
   x, y, w, h = 20, 20, 60, 20
   g = 1
 
-  player = {}
-  ani = {}
-
   characters = {
     default = { height = 200, width = 200, image = 'img/placeholder_kitty.png' }
   }
-  -- player = { x = 10, y = 10, speed = 100, image = nil }
-  -- player.image = love.graphics.newImage(characters["default"].image)
-  -- --anii = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
-  -- g = anim8.newGrid(100, 100, player.image:getWidth(), player.image:getHeight())
-  -- player.anim = {
-  --   s = anim8.newAnimation(g('1-1', 1), 0.1),
-  --   se = anim8.newAnimation(g('1-1', 1), 0.1)
-  -- }
-  -- player.body = love.physics.newBody(world, player.x, player.y, "static")
-  -- player.shape = love.physics.newRectangleShape(characters["default"].height, characters["default"].width)
-  -- player.fixture = love.physics.newFixture(player.body, player.shape)
+
+  local h = love.graphics.getHeight()
+  local w = love.graphics.getWidth()
+  x_value = (w/2)-50
+  y_value = ((h/4)*3)
+
+  player = { x = x_value, y = y_value, speed = 100, image = nil }
+  player.image = love.graphics.newImage(characters["default"].image)
+  --anii = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
+  aa = anim8.newGrid(200, 200, player.image:getWidth(), player.image:getHeight())
+  player.anim = {
+    s = anim8.newAnimation(aa('1-1', 1), 0.1),
+    se = anim8.newAnimation(aa('1-1', 1), 0.1)
+  }
+
+  player.body = love.physics.newBody(world, player.x, player.y, "static") -- dynamic or kinematic
+  player.shape = love.physics.newRectangleShape(characters["default"].height, characters["default"].width)
+  player.fixture = love.physics.newFixture(player.body, player.shape)
 end
 
 -- Increase the size of the rectangle every frame.
@@ -97,20 +105,20 @@ function game:update(dt)
   end
 
 
-  -- if love.keyboard.isDown('up','w') then
-  --   --player.body:applyForce( -100, 0 )
-  --   --player.body:setLinearVelocity( -player.speed, 0 )
-  --   player.body:setX(player.body:getX() - (player.speed*dt))
-  --   player.dir = 'w'
-  -- else
-  --
-  -- end
-  --
-  -- if player.dir == 'w' then
-  --
-  -- else
-  --   player.anim.s:update(dt)
-  -- end
+  if love.keyboard.isDown('up','w') then
+    --player.body:applyForce( -100, 0 )
+    --player.body:setLinearVelocity( -player.speed, 0 )
+    player.body:setY(player.body:getY() - (player.speed*dt))
+    player.dir = 'w'
+  else
+
+  end
+
+  if player.dir == 'w' then
+
+  else
+    player.anim.s:update(dt)
+  end
 
 
 
@@ -127,7 +135,7 @@ function game:draw()
 
     love.graphics.setColor(250, 250, 250)
 
-    --player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
+    player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
 
     camera:unset()
 end
