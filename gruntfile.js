@@ -32,6 +32,19 @@ module.exports = function(grunt) {
 					filter: 'isFile',
 				}]
 			},
+			add_ui_resources:{
+				files:[{
+					cwd: 'bower_components/',
+					src: [
+						'SUIT/*',
+					],
+					dest: 'build/resources/',
+					nonull: false,
+					expand: true,
+					flatten: false,
+					filter: 'isFile',
+				}]
+			},
 		},
 		watch:{
 			options:{
@@ -70,7 +83,8 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('build', [
 		'newer:copy:build_game',
-		'newer:copy:build_resources'
+		'newer:copy:build_resources',
+		'newer:copy:add_ui_resources'
 	]);
 
 	grunt.registerTask('update', [

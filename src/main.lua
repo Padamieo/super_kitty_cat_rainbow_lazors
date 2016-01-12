@@ -54,8 +54,8 @@ game = {}
 function game:enter()
 
   world = {}
-  love.physics.setMeter(64)
-  world = love.physics.newWorld(0, 9, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
+  love.physics.setMeter(10)
+  world = love.physics.newWorld(0, 80, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
 
   love.graphics.setBackgroundColor( 111, 10, 25 )
   x, y, w, h = 20, 20, 60, 20
@@ -67,10 +67,10 @@ function game:enter()
 
   local h = love.graphics.getHeight()
   local w = love.graphics.getWidth()
-  x_value = (w/2)-50
+  x_value = (w/2)
   y_value = ((h/4)*3)
 
-  player = { x = x_value, y = y_value, speed = 100, image = nil }
+  player = { x = x_value, y = y_value, image = nil }
   player.image = love.graphics.newImage(characters["default"].image)
   --anii = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
   aa = anim8.newGrid(200, 200, player.image:getWidth(), player.image:getHeight())
@@ -83,9 +83,10 @@ function game:enter()
   player.shape = love.physics.newRectangleShape(characters["default"].height, characters["default"].width)
   player.fixture = love.physics.newFixture(player.body, player.shape)
   player.fixture:setRestitution(0.9) -- bounce
-  player.body:setLinearDamping( 0.4 )
-  player.body:setMass(30)
+  --player.body:setLinearDamping( 0.9 )
+  player.body:setMass(100)
 end
+
 
 -- Increase the size of the rectangle every frame.
 function game:update(dt)
@@ -108,14 +109,16 @@ function game:update(dt)
 
 
   if love.keyboard.isDown('up','w') then
-    --player.body:applyForce( -100, 0 )
+    --player.body:applyForce( -10000, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
-    player.body:setY(player.body:getY() - (player.speed*dt))
+    --print(player.body:getY())
+    offset = player.body:getY()-80
+    player.body:setY(player.body:getY() - (offset*1*dt))
     player.body:setLinearVelocity(0, 1)
     player.dir = 'w'
 
   else
-
+    player.dir = 'n'
   end
 
   if player.dir == 'w' then
@@ -124,8 +127,6 @@ function game:update(dt)
     player.anim.s:update(dt)
   end
 
-
-
   camera:scale(g) -- zoom by 3
 end
 
@@ -133,13 +134,17 @@ end
 function game:draw()
     camera:set()
     love.graphics.setColor(0, 88, 200)
-    love.graphics.rectangle('fill', x, y, w, h)
-    love.graphics.rectangle('fill', 80, 80, w, h)
-    love.graphics.rectangle('fill', 250, 250, w, h)
+    -- love.graphics.rectangle('fill', x, y, w, h)
+    -- love.graphics.rectangle('fill', 80, 80, w, h)
+    -- love.graphics.rectangle('fill', 250, 250, w, h)
 
     love.graphics.setColor(250, 250, 250)
 
-    player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
+    if player.dir == 'w' then
+      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
+    else
+      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
+    end
 
     camera:unset()
 end
