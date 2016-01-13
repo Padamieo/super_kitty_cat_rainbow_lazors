@@ -65,8 +65,8 @@ function game:enter()
     default = { height = 200, width = 200, image = 'img/placeholder_kitty.png' }
   }
 
-  local h = love.graphics.getHeight()
-  local w = love.graphics.getWidth()
+  h = love.graphics.getHeight()
+  w = love.graphics.getWidth()
   x_value = (w/2)
   y_value = ((h/4)*3)
 
@@ -107,11 +107,16 @@ function game:update(dt)
     g = g
   end
 
+  if (player.body:getY() > h) then
+    menu = require "menu"
+    gamestate.switch(menu)
+  end
 
   if love.keyboard.isDown('up','w') then
     --player.body:applyForce( -10000, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
     --print(player.body:getY())
+
     offset = player.body:getY()-80
     player.body:setY(player.body:getY() - (offset*1*dt))
     player.body:setLinearVelocity(0, 1)
