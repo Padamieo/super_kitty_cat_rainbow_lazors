@@ -3,7 +3,8 @@ local menu = {}
 local input = {text = ""}
 
 function menu:enter()
-    love.graphics.setBackgroundColor( 0, 10, 25 )
+  print("menu")
+  love.graphics.setBackgroundColor( 0, 10, 25 )
 end
 
 function menu:update()
@@ -13,9 +14,9 @@ function menu:update()
   suit.Label("Hello, "..input.text, {align = "left"}, suit.layout:row())
   suit.layout:row()
 
-  if suit.Button("Start", suit.layout:row()).hit then
-    gamestate.switch(game)
-  end
+  -- if suit.Button("Start", suit.layout:row()).hit then
+  --   gamestate.switch(game)
+  -- end
 
   suit.layout:row()
 
@@ -26,7 +27,7 @@ function menu:update()
 end
 
 function menu:draw()
-    love.graphics.print("Press g to continue", 10, 10)
+    --love.graphics.print("Press g to continue", 10, 10)
     suit.draw()
 end
 

@@ -26,25 +26,6 @@ function love.load()
 end
 
 
--- local menu = {}
---
--- function menu:enter()
---     love.graphics.setBackgroundColor( 0, 10, 25 )
--- end
---
--- function menu:draw()
---     love.graphics.print("Press g to continue", 10, 10)
--- end
---
--- function menu:keyreleased(key, code)
---
---     if key == 'g' then
---         gamestate.switch(game)
---     end
--- end
---
--- return menu
-
 
 
 --following to go in game.lua but bellow for development
@@ -52,6 +33,8 @@ game = {}
 
 -- Load some default values for our rectangle.
 function game:enter()
+
+  print("test")
 
   world = {}
   love.physics.setMeter(10)
@@ -107,11 +90,6 @@ function game:update(dt)
     g = g
   end
 
-  if (player.body:getY() > h) then
-    menu = require "menu"
-    gamestate.switch(menu)
-  end
-
   if love.keyboard.isDown('up','w') then
     --player.body:applyForce( -10000, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
@@ -130,6 +108,12 @@ function game:update(dt)
 
   else
     player.anim.s:update(dt)
+  end
+
+
+  if (player.body:getY() > h-10) then
+    --menu = require "menu"
+    return gamestate.switch(menu)
   end
 
   camera:scale(g) -- zoom by 3
