@@ -25,15 +25,15 @@ function love.load()
   gamestate.switch(menu)
 end
 
-
-
+player = {active = false}
+firelazers = false
 
 --following to go in game.lua but bellow for development
 game = {}
 
 -- Load some default values for our rectangle.
 function game:enter()
-
+  start = 0
   print("test")
 
   world = {}
@@ -53,7 +53,7 @@ function game:enter()
   x_value = (w/2)
   y_value = ((h/4)*3)
 
-  player = { x = x_value, y = y_value, image = nil }
+  player = { active = true, x = x_value, y = y_value, image = nil }
   player.image = love.graphics.newImage(characters["default"].image)
   --anii = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
   aa = anim8.newGrid(200, 200, player.image:getWidth(), player.image:getHeight())
@@ -90,7 +90,8 @@ function game:update(dt)
     g = g
   end
 
-  if love.keyboard.isDown('up','w') then
+  --if love.keyboard.isDown('up','w') then
+  if firelazers == true then
     --player.body:applyForce( -10000, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
     --print(player.body:getY())
@@ -111,6 +112,8 @@ function game:update(dt)
   end
 
 
+
+
   if (player.body:getY() > h-10) then
     --menu = require "menu"
     return gamestate.switch(menu)
@@ -118,6 +121,37 @@ function game:update(dt)
 
   camera:scale(g) -- zoom by 3
 end
+
+
+function love.touchpressed( id, x, y, pressure )
+  print("touchpressed")
+end
+
+function love.mousepressed(x, y, button, istouch)
+
+  print("mousepressed")
+  if(player.active == true) then
+    -- offset = player.body:getY()-80
+    -- player.body:setY(player.body:getY() - (offset*1*dt))
+    --
+    -- --player.body:setLinearVelocity(0, offset*-1)
+    -- --player.body:applyLinearImpulse( 0, offset*-100)
+    -- player.dir = 'w'
+    -- print(offset)
+    firelazers = true
+  end
+
+  if istouch then
+    print("istouch")
+  else
+    print("notouch")
+  end
+end
+
+function love.mousereleased( x, y, button, istouch )
+  firelazers = false
+end
+
 
 -- Draw a coloured rectangle.
 function game:draw()
