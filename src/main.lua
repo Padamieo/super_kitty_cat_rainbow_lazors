@@ -1,5 +1,6 @@
 
 --https://www.youtube.com/watch?v=Ueya18MrtaA
+-- look at scale  https://love2d.org/forums/viewtopic.php?f=11&t=80262
 
 debug = true
 
@@ -21,19 +22,24 @@ anim8 = require 'resources.anim8'
 require 'general' -- not sure this helps with speed and performance
 
 function love.load()
+  shader = love.graphics.newShader("v.glsl")
+  --love.window.setMode(0,0,{resizable = true,vsync = false}) -- apprently will fullscreen android
+
   gamestate.registerEvents()
   gamestate.switch(menu)
 end
 
 player = {active = false}
 firelazers = false
+first_move = 0
 
 --following to go in game.lua but bellow for development
 game = {}
 
 -- Load some default values for our rectangle.
 function game:enter()
-  start = 0
+  --love.window.setMode(0,0,{resizable = true,vsync = false})
+  first_move = 0
   print("test")
 
   world = {}
@@ -73,13 +79,13 @@ end
 
 -- Increase the size of the rectangle every frame.
 function game:update(dt)
-  world:update(dt) -- physics
+  if first_move == 1 then
+    world:update(dt) -- physics
+  end
 
   if love.keyboard.isDown('escape') then
     love.event.push("quit")
   end
-
-  w = w + 0.1
 
   --zoom is broken
   if love.keyboard.isDown('-') then
@@ -112,8 +118,6 @@ function game:update(dt)
   end
 
 
-
-
   if (player.body:getY() > h-10) then
     --menu = require "menu"
     return gamestate.switch(menu)
@@ -128,8 +132,12 @@ function love.touchpressed( id, x, y, pressure )
 end
 
 function love.mousepressed(x, y, button, istouch)
+  if first_move == 0 then
+    first_move = 1
+  end
 
   print("mousepressed")
+
   if(player.active == true) then
     -- offset = player.body:getY()-80
     -- player.body:setY(player.body:getY() - (offset*1*dt))
@@ -156,12 +164,19 @@ end
 -- Draw a coloured rectangle.
 function game:draw()
     camera:set()
-    love.graphics.setColor(0, 88, 200)
+
+    if firelazers == true then
+      love.graphics.setShader(shader)
+    else
+      love.graphics.setColor(250, 250, 250)
+    end
+
+    --love.graphics.setColor(0, 88, 200)
     -- love.graphics.rectangle('fill', x, y, w, h)
     -- love.graphics.rectangle('fill', 80, 80, w, h)
     -- love.graphics.rectangle('fill', 250, 250, w, h)
 
-    love.graphics.setColor(250, 250, 250)
+    --love.graphics.setColor(250, 250, 250)
 
     if player.dir == 'w' then
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
@@ -171,5 +186,7 @@ function game:draw()
 
     camera:unset()
 end
+
+
 
 return game

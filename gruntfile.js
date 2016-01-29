@@ -51,7 +51,7 @@ module.exports = function(grunt) {
 				livereload: true,
 			},
 			copy:{
-				files: ['src/**/*.lua','src/**/**.{png,jpg,gif}'],
+				files: ['src/**/*.lua', 'src/**/*.glsl', 'src/**/**.{png,jpg,gif}'],
 				tasks: ['copy:build_game']
 			}
 		},
