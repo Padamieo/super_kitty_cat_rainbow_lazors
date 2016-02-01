@@ -29,8 +29,7 @@ function love.load()
   gamestate.switch(menu)
 end
 
-player = {active = false}
-firelazers = false
+player = {active = false, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
 first_move = 0
 
 --following to go in game.lua but bellow for development
@@ -40,7 +39,6 @@ game = {}
 function game:enter()
   --love.window.setMode(0,0,{resizable = true,vsync = false})
   first_move = 0
-  print("test")
 
   world = {}
   love.physics.setMeter(10)
@@ -97,7 +95,7 @@ function game:update(dt)
   end
 
   --if love.keyboard.isDown('up','w') then
-  if firelazers == true then
+  if player.lazers == true then
     --player.body:applyForce( -10000, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
     --print(player.body:getY())
@@ -117,7 +115,6 @@ function game:update(dt)
     player.anim.s:update(dt)
   end
 
-
   if (player.body:getY() > h-10) then
     --menu = require "menu"
     return gamestate.switch(menu)
@@ -131,6 +128,7 @@ function love.touchpressed( id, x, y, pressure )
   print("touchpressed")
 end
 
+
 function love.mousepressed(x, y, button, istouch)
   if first_move == 0 then
     first_move = 1
@@ -139,14 +137,9 @@ function love.mousepressed(x, y, button, istouch)
   print("mousepressed")
 
   if(player.active == true) then
-    -- offset = player.body:getY()-80
-    -- player.body:setY(player.body:getY() - (offset*1*dt))
-    --
-    -- --player.body:setLinearVelocity(0, offset*-1)
-    -- --player.body:applyLinearImpulse( 0, offset*-100)
-    -- player.dir = 'w'
-    -- print(offset)
-    firelazers = true
+    player.lazers = true
+    player.x = x
+    player.y = y
   end
 
   if istouch then
@@ -157,7 +150,7 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.mousereleased( x, y, button, istouch )
-  firelazers = false
+  player.lazers = false
 end
 
 
@@ -165,11 +158,19 @@ end
 function game:draw()
     camera:set()
 
-    if firelazers == true then
+    if player.lazers == true then
       love.graphics.setShader(shader)
+
+      --needs handling outside of lazers
+      myColor = {255, 255, 255, 100}
+      love.graphics.setColor(myColor)
+      love.graphics.circle( "fill", player.x, player.y, 50, 100 )
+
     else
-      love.graphics.setColor(250, 250, 250)
+      love.graphics.setShader()
     end
+
+    love.graphics.setColor(250, 250, 250)
 
     --love.graphics.setColor(0, 88, 200)
     -- love.graphics.rectangle('fill', x, y, w, h)
