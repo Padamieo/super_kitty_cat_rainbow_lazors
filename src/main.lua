@@ -100,7 +100,7 @@ function game:update(dt)
     --player.body:setLinearVelocity( -player.speed, 0 )
     --print(player.body:getY())
 
-    offset = player.body:getY()-80
+    offset = player.body:getY()-(h/8)
     player.body:setY(player.body:getY() - (offset*1*dt))
     player.body:setLinearVelocity(0, 1)
     player.dir = 'w'
@@ -109,13 +109,14 @@ function game:update(dt)
     player.dir = 'n'
   end
 
+
   if player.dir == 'w' then
 
   else
     player.anim.s:update(dt)
   end
 
-  if (player.body:getY() > h-10) then
+  if (player.body:getY() > h-(h/10)) then
     --menu = require "menu"
     return gamestate.switch(menu)
   end
