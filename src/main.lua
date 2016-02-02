@@ -29,7 +29,7 @@ function love.load()
   gamestate.switch(menu)
 end
 
-player = {active = false, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
+player = {touch = 0, active = false, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
 first_move = 0
 
 --following to go in game.lua but bellow for development
@@ -43,10 +43,6 @@ function game:enter()
   world = {}
   love.physics.setMeter(10)
   world = love.physics.newWorld(0, 80, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
-
-  love.graphics.setBackgroundColor( 111, 10, 25 )
-  x, y, w, h = 20, 20, 60, 20
-  g = 1
 
   characters = {
     default = { height = 200, width = 200, image = 'img/placeholder_kitty.png' }
@@ -85,14 +81,6 @@ function game:update(dt)
     love.event.push("quit")
   end
 
-  --zoom is broken
-  if love.keyboard.isDown('-') then
-    g = g - 0.01
-  elseif love.keyboard.isDown('=') then
-    g = g + 0.01
-  else
-    g = g
-  end
 
   --if love.keyboard.isDown('up','w') then
   if player.lazers == true then
@@ -109,15 +97,15 @@ function game:update(dt)
     player.dir = 'n'
   end
 
-
+  --animation set
   if player.dir == 'w' then
 
   else
     player.anim.s:update(dt)
   end
 
+  -- if bellow edge end game return to menu for now
   if (player.body:getY() > h-(h/10)) then
-    --menu = require "menu"
     return gamestate.switch(menu)
   end
 
@@ -127,6 +115,7 @@ end
 
 function love.touchpressed( id, x, y, pressure )
   print("touchpressed")
+
 end
 
 
@@ -136,11 +125,11 @@ function love.mousepressed(x, y, button, istouch)
   end
 
   print("mousepressed")
+  player.touch = 1
 
   if(player.active == true) then
     player.lazers = true
-    player.x = x
-    player.y = y
+
   end
 
   if istouch then
@@ -152,6 +141,7 @@ end
 
 function love.mousereleased( x, y, button, istouch )
   player.lazers = false
+  player.touch = 0
 end
 
 
@@ -161,14 +151,15 @@ function game:draw()
 
     if player.lazers == true then
       love.graphics.setShader(shader)
+    else
+      love.graphics.setShader()
+    end
 
+    if player.touch == 1 then
       --needs handling outside of lazers
       myColor = {255, 255, 255, 100}
       love.graphics.setColor(myColor)
       love.graphics.circle( "fill", player.x, player.y, 50, 100 )
-
-    else
-      love.graphics.setShader()
     end
 
     love.graphics.setColor(250, 250, 250)
