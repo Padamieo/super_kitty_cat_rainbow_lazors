@@ -29,8 +29,7 @@ function love.load()
   gamestate.switch(menu)
 end
 
-player = {touch = 0, active = false, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
-first_move = 0
+player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
 
 --following to go in game.lua but bellow for development
 game = {}
@@ -53,7 +52,7 @@ function game:enter()
   x_value = (w/2)
   y_value = ((h/4)*3)
 
-  player = { active = true, x = x_value, y = y_value, image = nil }
+  player = {active = 0, x = x_value, y = y_value, image = nil }
   player.image = love.graphics.newImage(characters["default"].image)
   --anii = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
   aa = anim8.newGrid(200, 200, player.image:getWidth(), player.image:getHeight())
@@ -73,7 +72,7 @@ end
 
 -- Increase the size of the rectangle every frame.
 function game:update(dt)
-  if first_move == 1 then
+  if player.active == 1 then
     world:update(dt) -- physics
   end
 
@@ -81,8 +80,6 @@ function game:update(dt)
     love.event.push("quit")
   end
 
-
-  --if love.keyboard.isDown('up','w') then
   if player.lazers == true then
     --player.body:applyForce( -10000, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
@@ -90,6 +87,7 @@ function game:update(dt)
 
     offset = player.body:getY()-(h/8)
     player.body:setY(player.body:getY() - (offset*1*dt))
+    --player.body:setLinearVelocity(0, offset*-2)
     player.body:setLinearVelocity(0, 1)
     player.dir = 'w'
 
@@ -120,28 +118,41 @@ end
 
 
 function love.mousepressed(x, y, button, istouch)
-  if first_move == 0 then
-    first_move = 1
-  end
 
-  print("mousepressed")
-  player.touch = 1
+  if player.active == 0 then
+    player.active = 1
+  else
 
-  if(player.active == true) then
+    player.touch = 1
     player.lazers = true
 
+    if player.endtime == 0 then
+
+      player.start = love.timer.getTime( )
+      player.endtime = love.timer.getTime( ) + 500
+    else
+      time = love.timer.getTime( )
+      print(player.endtime)
+      -- print(player.endtime)
+      -- if time >= player.endtime then
+      --  player.lazers = true
+      -- end
+    end
+
+    if istouch then
+      print("istouch")
+    else
+      print("notouch")
+    end
   end
 
-  if istouch then
-    print("istouch")
-  else
-    print("notouch")
-  end
 end
 
 function love.mousereleased( x, y, button, istouch )
-  player.lazers = false
   player.touch = 0
+  player.lazers = false
+  -- print(player.start)
+  -- print(player.endtime)
 end
 
 
