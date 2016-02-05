@@ -6,7 +6,7 @@
 
 uniform int   u_color   = 0;
 uniform float u_opacity = 0.75;
-extern number time;
+extern float dt_time;
 
 const vec3 SEPIA[2] = vec3[2](
 	vec3(1.2, 1.0, 0.8),

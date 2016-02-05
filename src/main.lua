@@ -67,11 +67,17 @@ function game:enter()
   player.fixture:setRestitution(0.9) -- bounce
   --player.body:setLinearDamping( 0.9 )
   player.body:setMass(100)
+  hv = 0
+  lv = 0
 end
 
 
 -- Increase the size of the rectangle every frame.
 function game:update(dt)
+
+  -- print(iSystem.iGlobalTime)
+  shader:send("dt_time", dt)
+
   if player.active == 1 then
     world:update(dt) -- physics
   end
