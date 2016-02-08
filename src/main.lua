@@ -76,7 +76,8 @@ end
 function game:update(dt)
 
   -- print(iSystem.iGlobalTime)
-  shader:send("dt_time", dt)
+  -- dt_time = dt
+  -- shader:send("dt_time", dt_time)
 
   if player.active == 1 then
     world:update(dt) -- physics
@@ -111,6 +112,11 @@ function game:update(dt)
   -- if bellow edge end game return to menu for now
   if (player.body:getY() > h-(h/10)) then
     return gamestate.switch(menu)
+  end
+
+  if player.touch == 1 then
+    player.x = love.mouse.getX( )
+    player.y = love.mouse.getY( )
   end
 
   camera:scale(g) -- zoom by 3
