@@ -2,18 +2,30 @@ local menu = {}
 
 local input = {text = ""}
 
+hh = 0
+ww = 10
+
 function menu:enter()
   print("menu")
   love.graphics.setBackgroundColor( 0, 10, 25 )
   start = 0
+
+  hh = love.graphics.getHeight()
+  ww = love.graphics.getWidth()
+
 end
 
-function menu:update()
+function menu:update(dt)
 
   suit.enterFrame() -- https://love2d.org/forums/viewtopic.php?f=5&t=81522&start=20 -- SHOULD NOT BE NEEDED BUT SUIT IS A LITTLE BROKEN
 
-  suit.layout:reset(100,100)
-  suit.Input(input, suit.layout:row(200,40))
+  if(love.graphics.getWidth() == ww)then
+  else
+    ww = love.graphics.getWidth()
+  end
+
+  suit.layout:reset(ww/4,100)
+  suit.Input(input, suit.layout:row(ww/2,40))
   suit.Label("Hello, "..input.text, {align = "left"}, suit.layout:row())
   suit.layout:row()
 
@@ -33,9 +45,13 @@ function menu:update()
 
 end
 
+
+
 function menu:draw()
+  --cam:attach()
     --love.graphics.print("Press g to continue", 10, 10)
     suit.draw()
+  --cam:detach()
 end
 
 function menu:keyreleased(key, code)

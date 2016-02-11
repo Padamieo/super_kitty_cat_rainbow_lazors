@@ -16,15 +16,16 @@ menu = require "menu"
 
 --game = require "game"
 
-camera = require "camera"
+camera = require "resources.camera"
+cam = 0
 anim8 = require 'resources.anim8'
 
 require 'general' -- not sure this helps with speed and performance
 
 function love.load()
-  shader = love.graphics.newShader("v.glsl")
+  --shader = love.graphics.newShader("v.glsl")
   --love.window.setMode(0,0,{resizable = true,vsync = false}) -- apprently will fullscreen android
-
+  cam = camera(0,0,1, 0)
   gamestate.registerEvents()
   gamestate.switch(menu)
 end
@@ -119,7 +120,8 @@ function game:update(dt)
     player.y = love.mouse.getY( )
   end
 
-  camera:scale(g) -- zoom by 3
+  --camera:scale(g) -- zoom by 3
+  cam:move(player.x, player.y)
 end
 
 
@@ -170,13 +172,13 @@ end
 
 -- Draw a coloured rectangle.
 function game:draw()
-    camera:set()
+    --cam:attach()
 
-    if player.lazers == true then
-      love.graphics.setShader(shader)
-    else
-      love.graphics.setShader()
-    end
+    -- if player.lazers == true then
+    --   love.graphics.setShader(shader)
+    -- else
+    --   love.graphics.setShader()
+    -- end
 
     if player.touch == 1 then
       --needs handling outside of lazers
@@ -200,7 +202,7 @@ function game:draw()
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
     end
 
-    camera:unset()
+    --cam:detach()
 end
 
 
