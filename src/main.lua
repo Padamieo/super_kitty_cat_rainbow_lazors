@@ -70,10 +70,13 @@ function game:enter()
   player.body:setMass(100)
   hv = 0
   lv = 0
+
+  --obb = love.graphics.circle( "fill", player.x, player.y, 1, 100 )
 end
 
 
--- Increase the size of the rectangle every frame.
+
+
 function game:update(dt)
 
   -- print(iSystem.iGlobalTime)
@@ -118,11 +121,23 @@ function game:update(dt)
   if player.touch == 1 then
     player.x = love.mouse.getX( )
     player.y = love.mouse.getY( )
+
+    if player.endtime ~= nil then
+      time = love.timer.getTime( )
+      if time > player.endtime then
+        player.lazers = true
+      end
+      --print(player.endtime)
+    end
+
   end
 
   --camera:scale(g) -- zoom by 3
   cam:move(player.x, player.y)
+
 end
+
+
 
 
 function love.touchpressed( id, x, y, pressure )
@@ -138,20 +153,9 @@ function love.mousepressed(x, y, button, istouch)
   else
 
     player.touch = 1
-    player.lazers = true
 
-    if player.endtime == 0 then
-
-      player.start = love.timer.getTime( )
-      player.endtime = love.timer.getTime( ) + 500
-    else
-      time = love.timer.getTime( )
-      print(player.endtime)
-      -- print(player.endtime)
-      -- if time >= player.endtime then
-      --  player.lazers = true
-      -- end
-    end
+    player.start = love.timer.getTime( )
+    player.endtime = love.timer.getTime( ) + 0.8
 
     if istouch then
       print("istouch")
@@ -185,6 +189,10 @@ function game:draw()
       myColor = {255, 255, 255, 100}
       love.graphics.setColor(myColor)
       love.graphics.circle( "fill", player.x, player.y, 50, 100 )
+
+      -- tween fluc maybe : https://love2d.org/forums/viewtopic.php?t=77904&p=168300
+      love.graphics.circle( "fill", player.x, player.y, 1, 100 )
+
     end
 
     love.graphics.setColor(250, 250, 250)
