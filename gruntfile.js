@@ -24,6 +24,7 @@ module.exports = function(grunt) {
 						'hump/camera.lua',
 						'hump/gamestate.lua',
 						'anim8/anim8.lua',
+						'flux/flux.lua',
 					],
 					dest: 'build/resources/',
 					nonull: false,

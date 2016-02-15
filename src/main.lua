@@ -19,6 +19,7 @@ menu = require "menu"
 camera = require "resources.camera"
 cam = 0
 anim8 = require 'resources.anim8'
+flux = require 'resources.flux'
 
 require 'general' -- not sure this helps with speed and performance
 
@@ -28,9 +29,25 @@ function love.load()
   cam = camera(0,0,1, 0)
   gamestate.registerEvents()
   gamestate.switch(menu)
+
+  circle = {size = 0}
+  -- local count = 10
+  -- function sequence()
+  -- -- Abort if we hit our repeat limit
+  -- count = count - 1               -- Omit this to repeat forever
+  -- if count == 0 then return end   -- and this
+  --   -- Do tween
+  --   flux.to(circle, 2, { size = 100 }):ease("elasticout")
+  --     :after(circle, 1, { size = 0 }):ease("quadin")
+  --     :oncomplete(sequence) -- Intialise the next iteration of the sequence
+  -- end
+  -- -- Intialise the first iteration of the sequence
+  -- sequence()
+
+
 end
 
-player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
+player = {touch = 0, lazers = false, fire = false, x = 0, y = 0, start = 0, endtime = 0}
 
 --following to go in game.lua but bellow for development
 game = {}
@@ -72,6 +89,14 @@ function game:enter()
   lv = 0
 
   --obb = love.graphics.circle( "fill", player.x, player.y, 1, 100 )
+
+
+  --enemies
+  createEnemyTimerMax = 1
+  createEnemyTimer = createEnemyTimerMax
+  enemyImg = love.graphics.newImage('img/nme.png')
+  enemy_limit = 10
+  enemies = {}
 end
 
 
@@ -113,7 +138,7 @@ function game:update(dt)
     player.anim.s:update(dt)
   end
 
-  -- if bellow edge end game return to menu for now
+  -- if below edge end game return to menu for now
   if (player.body:getY() > h-(h/10)) then
     return gamestate.switch(menu)
   end
@@ -122,18 +147,63 @@ function game:update(dt)
     player.x = love.mouse.getX( )
     player.y = love.mouse.getY( )
 
+    --do not like this timer seems off
+    flux.to(circle, 0.3, {size = 50 }):ease("linear")
+
     if player.endtime ~= nil then
       time = love.timer.getTime( )
       if time > player.endtime then
+        player.fire = false
         player.lazers = true
       end
       --print(player.endtime)
     end
 
+  else
+
+    --if released before fire lazer momentum
+    if player.endtime ~= nil then
+      time = love.timer.getTime( )
+      if time < player.endtime then
+        --need to probably spawn a fireball
+        print('fire')
+        player.fire = true
+      end
+
+    end
+    --added to turn of circle size animation
+    circle.size = 0
+
+  end
+
+  --enemey elements
+  createEnemyTimer = createEnemyTimer - (1 * dt)
+  if createEnemyTimer < 0 then
+    if table.getn(enemies) < enemy_limit then
+      createEnemyTimer = createEnemyTimerMax
+      randomNumber = math.random(10, love.graphics.getWidth() - 10)
+      ran_again = math.random(10, love.graphics.getWidth() - 10)
+      newEnemy = { x = randomNumber, y = love.graphics.getHeight(), go_x = ran_again, img = enemyImg }
+      table.insert(enemies, newEnemy)
+    end
+  end
+
+  for i, enemy in ipairs(enemies) do
+    enemy.y = enemy.y - (10 * dt)
+
+    -- if enemy.go_x ~= enemy.x then
+    --
+    -- end
+
+
+    if enemy.y > 800 then -- remove enemies when they pass off the screen
+      table.remove(enemies, i)
+    end
   end
 
   --camera:scale(g) -- zoom by 3
   cam:move(player.x, player.y)
+  flux.update(dt)
 
 end
 
@@ -171,6 +241,9 @@ function love.mousereleased( x, y, button, istouch )
   player.lazers = false
   -- print(player.start)
   -- print(player.endtime)
+  if player.fire == true then
+
+  end
 end
 
 
@@ -191,7 +264,11 @@ function game:draw()
       love.graphics.circle( "fill", player.x, player.y, 50, 100 )
 
       -- tween fluc maybe : https://love2d.org/forums/viewtopic.php?t=77904&p=168300
-      love.graphics.circle( "fill", player.x, player.y, 1, 100 )
+      love.graphics.circle( "fill", player.x, player.y, circle.size, 100 )
+
+      if player.fire == true then
+        love.graphics.line( player.x, player.y, player.body:getX(), player.body:getY() )
+      end
 
     end
 
@@ -208,6 +285,11 @@ function game:draw()
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
     else
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
+    end
+
+    -- draw enemies
+    for i, enemy in ipairs(enemies) do
+      love.graphics.draw(enemy.img, enemy.x, enemy.y)
     end
 
     --cam:detach()
