@@ -97,6 +97,14 @@ function game:enter()
   enemyImg = love.graphics.newImage('img/nme.png')
   enemy_limit = 10
   enemies = {}
+
+
+  --bullets
+  canShoot = true
+  canShootTimerMax = 0.2
+  canShootTimer = canShootTimerMax
+  bulletImg = love.graphics.newImage('img/b.png')
+  bullets = {}
 end
 
 
@@ -192,12 +200,37 @@ function game:update(dt)
     enemy.y = enemy.y - (10 * dt)
 
     -- if enemy.go_x ~= enemy.x then
-    --
     -- end
-
 
     if enemy.y > 800 then -- remove enemies when they pass off the screen
       table.remove(enemies, i)
+    end
+  end
+
+
+  --bullet elements
+  canShootTimer = canShootTimer - (0.5 * dt)
+  if canShootTimer < 0 then
+    canShoot = true
+  end
+
+  if love.keyboard.isDown('z') and canShoot then
+
+    --newBullet = { x = player.x + (player.img:getWidth()/2), y = player.y, img = bulletImg }
+    --player.body:getY()
+    newBullet = { x = player.body:getX(), y = player.body:getY(), img = bulletImg }
+    --newBullet = { x = (love.graphics.getWidth()/2), y = (love.graphics.getHeight()/2), img = bulletImg }
+
+    table.insert(bullets, newBullet)
+    canShoot = false
+    canShootTimer = canShootTimerMax
+  end
+
+  for i, bullet in ipairs(bullets) do
+    bullet.y = bullet.y - (250 * dt)
+
+    if bullet.y < 0 then -- remove bullets when they pass off the screen
+    	table.remove(bullets, i)
     end
   end
 
@@ -290,6 +323,11 @@ function game:draw()
     -- draw enemies
     for i, enemy in ipairs(enemies) do
       love.graphics.draw(enemy.img, enemy.x, enemy.y)
+    end
+
+    -- draw bullets
+    for i, bullet in ipairs(bullets) do
+      love.graphics.draw(bullet.img, bullet.x, bullet.y)
     end
 
     --cam:detach()
