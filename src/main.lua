@@ -190,19 +190,30 @@ function game:update(dt)
     if table.getn(enemies) < enemy_limit then
       createEnemyTimer = createEnemyTimerMax
       randomNumber = math.random(10, love.graphics.getWidth() - 10)
-      ran_again = math.random(10, love.graphics.getWidth() - 10)
-      newEnemy = { x = randomNumber, y = love.graphics.getHeight(), go_x = ran_again, img = enemyImg }
+
+      newEnemy = { x = randomNumber, y = love.graphics.getHeight(), start_x = randomNumber, img = enemyImg }
+
       table.insert(enemies, newEnemy)
     end
   end
 
   for i, enemy in ipairs(enemies) do
     enemy.y = enemy.y - (10 * dt)
+    halfpost = love.graphics.getWidth()/2
 
-    -- if enemy.go_x ~= enemy.x then
-    -- end
+    if enemy.x < love.graphics.getWidth() then
+      enemy.x = 100 * math.tan(dt*math.pi) + enemy.start_x
+      if i == 1 then
+        print(enemy.x)
+      end
 
-    if enemy.y > 800 then -- remove enemies when they pass off the screen
+    end
+ -- enemy.x < 0+love.graphics.getWidth()/10 then
+    -- flux.to(enemy, 0.3, {size = 50 }):ease("linear")
+
+
+
+    if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
       table.remove(enemies, i)
     end
   end
