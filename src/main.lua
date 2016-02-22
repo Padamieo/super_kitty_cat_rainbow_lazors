@@ -207,6 +207,13 @@ function game:update(dt)
     enemy.y = enemy.y - (10 * dt)
     halfpost = love.graphics.getWidth()/2
 
+    vv = enemy.x + dt
+    enemy.x = math.sin(vv) * enemy.start_x
+
+    if i == 1 then
+      print(enemy.x)
+    end
+
     if enemy.x < love.graphics.getWidth() then
       --enemy.x = 100 * math.sin(dt*math.pi)
       if i == 1 then
