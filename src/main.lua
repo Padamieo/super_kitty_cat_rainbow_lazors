@@ -192,19 +192,25 @@ function game:update(dt)
       randomNumber = math.random(10, love.graphics.getWidth() - 10)
 
       newEnemy = { x = randomNumber, y = love.graphics.getHeight(), start_x = randomNumber, img = enemyImg }
+      newEnemy.body = love.physics.newBody(world, newEnemy.x, newEnemy.y, "static") -- static or kinematic
+      newEnemy.shape = love.physics.newRectangleShape(newEnemy.img:getWidth(), newEnemy.img:getHeight())
+      newEnemy.fixture = love.physics.newFixture(newEnemy.body, newEnemy.shape)
+      newEnemy.fixture:setRestitution(0.9)
+      newEnemy.body:setMass(10)
 
       table.insert(enemies, newEnemy)
     end
   end
+
 
   for i, enemy in ipairs(enemies) do
     enemy.y = enemy.y - (10 * dt)
     halfpost = love.graphics.getWidth()/2
 
     if enemy.x < love.graphics.getWidth() then
-      enemy.x = 100 * math.tan(dt*math.pi) + enemy.start_x
+      --enemy.x = 100 * math.sin(dt*math.pi)
       if i == 1 then
-        print(enemy.x)
+        -- print(enemy.x)
       end
 
     end
