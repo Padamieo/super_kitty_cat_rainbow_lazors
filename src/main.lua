@@ -62,7 +62,7 @@ function game:enter()
   world = love.physics.newWorld(0, 80, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
 
   characters = {
-    default = { height = 200, width = 200, image = 'img/placeholder_kitty.png' }
+    default = { height = 50, width = 50, image = 'img/placeholder_kitty.png' }
   }
 
   h = love.graphics.getHeight()
@@ -192,7 +192,7 @@ function game:update(dt)
       randomNumber = math.random(10, love.graphics.getWidth() - 10)
 
       newEnemy = { x = randomNumber, y = love.graphics.getHeight(), start_x = randomNumber, img = enemyImg }
-      newEnemy.body = love.physics.newBody(world, newEnemy.x, newEnemy.y, "static") -- static or kinematic
+      newEnemy.body = love.physics.newBody(world, newEnemy.x, newEnemy.y, "dynamic") -- static or kinematic
       newEnemy.shape = love.physics.newRectangleShape(newEnemy.img:getWidth(), newEnemy.img:getHeight())
       newEnemy.fixture = love.physics.newFixture(newEnemy.body, newEnemy.shape)
       newEnemy.fixture:setRestitution(0.9)
@@ -204,25 +204,34 @@ function game:update(dt)
 
 
   for i, enemy in ipairs(enemies) do
-    enemy.y = enemy.y - (10 * dt)
-    halfpost = love.graphics.getWidth()/2
-
-    vv = enemy.x + dt
-    enemy.x = math.sin(vv) * enemy.start_x
-
-    if i == 1 then
-      print(enemy.x)
-    end
-
-    if enemy.x < love.graphics.getWidth() then
-      --enemy.x = 100 * math.sin(dt*math.pi)
-      if i == 1 then
-        -- print(enemy.x)
-      end
-
-    end
+    -- enemy.y = enemy.y - (10 * dt)
+    -- halfpost = love.graphics.getWidth()/2
+    --
+    -- vv = enemy.x + dt
+    -- enemy.x = math.sin(vv) * enemy.start_x
+    --
+    -- if i == 1 then
+    --   print(enemy.x)
+    -- end
+    --
+    -- if enemy.x < love.graphics.getWidth() then
+    --   --enemy.x = 100 * math.sin(dt*math.pi)
+    --   if i == 1 then
+    --     -- print(enemy.x)
+    --   end
+    --
+    -- end
  -- enemy.x < 0+love.graphics.getWidth()/10 then
     -- flux.to(enemy, 0.3, {size = 50 }):ease("linear")
+
+    --new with force
+      -- x,y = love.mouse.getPosition()
+      -- bodyx,bodyy = enemies[i].body:getPosition()
+      -- print(bodyx)
+      -- angle = math.atan2(bodyy - y, bodyx - x)
+      -- circle.body:applyForce( -math.cos( angle )*1000, -math.sin(angle)*1000)
+    enemy.body:applyForce( 10, -1000)
+    enemy.x,enemy.y = enemy.body:getPosition()
 
 
 
@@ -242,8 +251,15 @@ function game:update(dt)
 
     --newBullet = { x = player.x + (player.img:getWidth()/2), y = player.y, img = bulletImg }
     --player.body:getY()
-    newBullet = { x = player.body:getX(), y = player.body:getY(), img = bulletImg }
+    newBullet = { x = player.body:getX(), y = player.body:getY()+50, img = bulletImg }
     --newBullet = { x = (love.graphics.getWidth()/2), y = (love.graphics.getHeight()/2), img = bulletImg }
+    --newEnemy = { x = randomNumber, y = love.graphics.getHeight()-50, start_x = randomNumber, img = enemyImg }
+    newBullet.body = love.physics.newBody(world, newBullet.x, newBullet.y, "dynamic") -- static or kinematic
+    newBullet.shape = love.physics.newRectangleShape(newBullet.img:getWidth(), newBullet.img:getHeight())
+    newBullet.fixture = love.physics.newFixture(newBullet.body, newBullet.shape)
+    newBullet.fixture:setRestitution(0.9)
+    newBullet.body:setMass(10)
+
 
     table.insert(bullets, newBullet)
     canShoot = false
@@ -251,7 +267,9 @@ function game:update(dt)
   end
 
   for i, bullet in ipairs(bullets) do
-    bullet.y = bullet.y - (250 * dt)
+    --bullet.y = bullet.y - (250 * dt)
+    bullet.body:applyForce( 0, 1000)
+    bullet.x,bullet.y = bullet.body:getPosition()
 
     if bullet.y < 0 then -- remove bullets when they pass off the screen
     	table.remove(bullets, i)
@@ -346,6 +364,7 @@ function game:draw()
 
     -- draw enemies
     for i, enemy in ipairs(enemies) do
+
       love.graphics.draw(enemy.img, enemy.x, enemy.y)
     end
 
