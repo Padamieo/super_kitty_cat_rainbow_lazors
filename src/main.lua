@@ -56,6 +56,7 @@ game = {}
 function game:enter()
   --love.window.setMode(0,0,{resizable = true,vsync = false})
   first_move = 0
+  scale = love.window.getPixelScale( )
 
   world = {}
   love.physics.setMeter(10)
