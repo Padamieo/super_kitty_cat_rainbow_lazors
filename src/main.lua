@@ -157,7 +157,7 @@ function game:update(dt)
     player.y = love.mouse.getY( )
 
     --do not like this timer seems off
-    flux.to(circle, 0.3, {size = 50 }):ease("linear")
+    flux.to(circle, 0.3, {size = 100*scale }):ease("linear")
 
     if player.endtime ~= nil then
       time = love.timer.getTime( )
@@ -192,7 +192,7 @@ function game:update(dt)
       createEnemyTimer = createEnemyTimerMax
       randomNumber = math.random(10, love.graphics.getWidth() - 10)
 
-      newEnemy = { x = randomNumber, y = love.graphics.getHeight(), start_x = randomNumber, img = enemyImg }
+      newEnemy = { x = randomNumber, y = h, start_x = randomNumber, img = enemyImg }
       newEnemy.body = love.physics.newBody(world, newEnemy.x, newEnemy.y, "dynamic") -- static or kinematic
       newEnemy.shape = love.physics.newRectangleShape(newEnemy.img:getWidth(), newEnemy.img:getHeight())
       newEnemy.fixture = love.physics.newFixture(newEnemy.body, newEnemy.shape)
@@ -234,33 +234,39 @@ function game:update(dt)
     enemy.body:applyForce( 10, -1000)
     enemy.x,enemy.y = enemy.body:getPosition()
 
-
-
     if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
       table.remove(enemies, i)
     end
   end
 
-
   --bullet elements
-  canShootTimer = canShootTimer - (0.5 * dt)
+  canShootTimer = canShootTimer - (0.3 * dt)
   if canShootTimer < 0 then
     canShoot = true
   end
 
-  if love.keyboard.isDown('z') and canShoot then
+  -- either love.keyboard.isDown('z') or player.fire for now.
+  if player.fire and canShoot then
 
     --newBullet = { x = player.x + (player.img:getWidth()/2), y = player.y, img = bulletImg }
     --player.body:getY()
-    newBullet = { x = player.body:getX(), y = player.body:getY()+50, img = bulletImg }
+
+    local mouseX = player.x
+    local mouseY = player.y
+    local angle = math.atan2((mouseY - player.body:getY()), (mouseX - player.body:getX()))
+
+    local bulletDx = 500 * math.cos(angle)
+    local bulletDy = 500 * math.sin(angle)
+
+
+    newBullet = { x = player.body:getX(), y = player.body:getY()+50, dx = bulletDx, dy = bulletDy, img = bulletImg }
     --newBullet = { x = (love.graphics.getWidth()/2), y = (love.graphics.getHeight()/2), img = bulletImg }
     --newEnemy = { x = randomNumber, y = love.graphics.getHeight()-50, start_x = randomNumber, img = enemyImg }
-    newBullet.body = love.physics.newBody(world, newBullet.x, newBullet.y, "dynamic") -- static or kinematic
-    newBullet.shape = love.physics.newRectangleShape(newBullet.img:getWidth(), newBullet.img:getHeight())
-    newBullet.fixture = love.physics.newFixture(newBullet.body, newBullet.shape)
-    newBullet.fixture:setRestitution(0.9)
-    newBullet.body:setMass(10)
-
+    -- newBullet.body = love.physics.newBody(world, newBullet.x, newBullet.y, "dynamic") -- static or kinematic
+    -- newBullet.shape = love.physics.newRectangleShape(newBullet.img:getWidth(), newBullet.img:getHeight())
+    -- newBullet.fixture = love.physics.newFixture(newBullet.body, newBullet.shape)
+    -- newBullet.fixture:setRestitution(0.9)
+    -- newBullet.body:setMass(10)
 
     table.insert(bullets, newBullet)
     canShoot = false
@@ -269,21 +275,21 @@ function game:update(dt)
 
   for i, bullet in ipairs(bullets) do
     --bullet.y = bullet.y - (250 * dt)
-    bullet.body:applyForce( 0, 1000)
-    bullet.x,bullet.y = bullet.body:getPosition()
+    --bullet.body:applyForce( 0, 1000)
+    --bullet.x,bullet.y = bullet.body:getPosition()
 
-    if bullet.y < 0 then -- remove bullets when they pass off the screen
+      bullet.x = bullet.x + (bullet.dx * dt)
+      bullet.y = bullet.y + (bullet.dy * dt)
+
+    if (bullet.x < -10) or (bullet.x > love.graphics.getWidth() + 10) or (bullet.y < -10) or (bullet.y > love.graphics.getHeight() + 10) then
     	table.remove(bullets, i)
     end
   end
 
-  --camera:scale(g) -- zoom by 3
   cam:move(player.x, player.y)
   flux.update(dt)
 
 end
-
-
 
 
 function love.touchpressed( id, x, y, pressure )
@@ -337,10 +343,11 @@ function game:draw()
       --needs handling outside of lazers
       myColor = {255, 255, 255, 100}
       love.graphics.setColor(myColor)
-      love.graphics.circle( "fill", player.x, player.y, 50, 100 )
+
+      love.graphics.circle( "line", player.x, player.y, 100*scale, 100 )
 
       -- tween fluc maybe : https://love2d.org/forums/viewtopic.php?t=77904&p=168300
-      love.graphics.circle( "fill", player.x, player.y, circle.size, 100 )
+      love.graphics.circle( "fill", player.x, player.y, circle.size, 100*scale )
 
       if player.fire == true then
         love.graphics.line( player.x, player.y, player.body:getX(), player.body:getY() )
