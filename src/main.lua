@@ -16,8 +16,6 @@ menu = require "menu"
 
 --game = require "game"
 
-camera = require "resources.camera"
-cam = 0
 anim8 = require 'resources.anim8'
 flux = require 'resources.flux'
 
@@ -26,7 +24,6 @@ require 'general' -- not sure this helps with speed and performance
 function love.load()
   --shader = love.graphics.newShader("v.glsl")
   --love.window.setMode(0,0,{resizable = true,vsync = false}) -- apprently will fullscreen android
-  cam = camera(0,0,1, 0)
   gamestate.registerEvents()
   gamestate.switch(menu)
 
@@ -72,24 +69,17 @@ function game:enter()
 
   player = {active = 0, x = x_value, y = y_value, image = nil }
   player.image = love.graphics.newImage(characters["default"].image)
-  --anii = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
-  aa = anim8.newGrid(200, 200, player.image:getWidth(), player.image:getHeight())
+  anim = anim8.newGrid(200, 200, player.image:getWidth(), player.image:getHeight())
   player.anim = {
-    s = anim8.newAnimation(aa('1-1', 1), 0.1),
-    se = anim8.newAnimation(aa('1-1', 1), 0.1)
+    s = anim8.newAnimation(anim('1-1', 1), 0.1),
+    se = anim8.newAnimation(anim('1-1', 1), 0.1)
   }
 
   player.body = love.physics.newBody(world, player.x, player.y, "dynamic") -- static or kinematic
   player.shape = love.physics.newRectangleShape(characters["default"].height, characters["default"].width)
   player.fixture = love.physics.newFixture(player.body, player.shape)
   player.fixture:setRestitution(0.9) -- bounce
-  --player.body:setLinearDamping( 0.9 )
   player.body:setMass(100)
-  hv = 0
-  lv = 0
-
-  --obb = love.graphics.circle( "fill", player.x, player.y, 1, 100 )
-
 
   --enemies
   createEnemyTimerMax = 1
@@ -97,7 +87,6 @@ function game:enter()
   enemyImg = love.graphics.newImage('img/nme.png')
   enemy_limit = 10
   enemies = {}
-
 
   --bullets
   canShoot = true
@@ -109,10 +98,8 @@ end
 
 
 
-
 function game:update(dt)
 
-  -- print(iSystem.iGlobalTime)
   -- dt_time = dt
   -- shader:send("dt_time", dt_time)
 
@@ -125,9 +112,6 @@ function game:update(dt)
   end
 
   if player.lazers == true then
-    --player.body:applyForce( -10000, 0 )
-    --player.body:setLinearVelocity( -player.speed, 0 )
-    --print(player.body:getY())
 
     offset = player.body:getY()-(h/8)
     player.body:setY(player.body:getY() - (offset*1*dt))
@@ -192,11 +176,6 @@ function game:update(dt)
       randomNumber = math.random(10, love.graphics.getWidth() - 10)
 
       newEnemy = { x = randomNumber, y = h, start_x = randomNumber, img = enemyImg }
-      newEnemy.body = love.physics.newBody(world, newEnemy.x, newEnemy.y, "dynamic") -- static or kinematic
-      newEnemy.shape = love.physics.newRectangleShape(newEnemy.img:getWidth(), newEnemy.img:getHeight())
-      newEnemy.fixture = love.physics.newFixture(newEnemy.body, newEnemy.shape)
-      newEnemy.fixture:setRestitution(0.9)
-      newEnemy.body:setMass(10)
 
       table.insert(enemies, newEnemy)
     end
@@ -224,14 +203,19 @@ function game:update(dt)
  -- enemy.x < 0+love.graphics.getWidth()/10 then
     -- flux.to(enemy, 0.3, {size = 50 }):ease("linear")
 
-    --new with force
-      -- x,y = love.mouse.getPosition()
-      -- bodyx,bodyy = enemies[i].body:getPosition()
-      -- print(bodyx)
-      -- angle = math.atan2(bodyy - y, bodyx - x)
-      -- circle.body:applyForce( -math.cos( angle )*1000, -math.sin(angle)*1000)
-    enemy.body:applyForce( 10, -1000)
-    enemy.x,enemy.y = enemy.body:getPosition()
+    if player.lazers == true then
+      speed = 15
+    else
+      speed = 70
+    end
+
+    vv = ture
+    if vv == true then
+      enemy.y = enemy.y -( speed * dt )
+    else
+      enemy.y = enemy.y -( speed * dt )
+    end
+
 
     if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
       table.remove(enemies, i)
@@ -247,15 +231,12 @@ function game:update(dt)
   -- either love.keyboard.isDown('z') or player.fire for now.
   if player.fire and canShoot then
 
-    --newBullet = { x = player.x + (player.img:getWidth()/2), y = player.y, img = bulletImg }
-    --player.body:getY()
-
     local mouseX = player.x
     local mouseY = player.y
     local angle = math.atan2((mouseY - player.body:getY()), (mouseX - player.body:getX()))
 
-    local bulletDx = 700 * math.cos(angle)
-    local bulletDy = 700 * math.sin(angle)
+    local bulletDx = 800 * math.cos(angle)
+    local bulletDy = 800 * math.sin(angle)
 
     newBullet = { x = player.body:getX(), y = player.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
 
@@ -274,7 +255,6 @@ function game:update(dt)
     end
   end
 
-  cam:move(player.x, player.y)
   flux.update(dt)
 
 end
@@ -282,7 +262,6 @@ end
 
 function love.touchpressed( id, x, y, pressure )
   print("touchpressed")
-
 end
 
 
@@ -306,6 +285,7 @@ function love.mousepressed(x, y, button, istouch)
 
 end
 
+
 function love.mousereleased( x, y, button, istouch )
   player.touch = 0
   player.lazers = false
@@ -319,7 +299,6 @@ end
 
 -- Draw a coloured rectangle.
 function game:draw()
-    --cam:attach()
 
     -- if player.lazers == true then
     --   love.graphics.setShader(shader)
@@ -368,9 +347,6 @@ function game:draw()
       love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a)
     end
 
-    --cam:detach()
 end
-
-
 
 return game
