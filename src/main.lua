@@ -44,7 +44,6 @@ function love.load()
   -- -- Intialise the first iteration of the sequence
   -- sequence()
 
-
 end
 
 player = {touch = 0, lazers = false, fire = false, x = 0, y = 0, start = 0, endtime = 0}
@@ -255,18 +254,10 @@ function game:update(dt)
     local mouseY = player.y
     local angle = math.atan2((mouseY - player.body:getY()), (mouseX - player.body:getX()))
 
-    local bulletDx = 500 * math.cos(angle)
-    local bulletDy = 500 * math.sin(angle)
+    local bulletDx = 700 * math.cos(angle)
+    local bulletDy = 700 * math.sin(angle)
 
-
-    newBullet = { x = player.body:getX(), y = player.body:getY()+50, dx = bulletDx, dy = bulletDy, img = bulletImg }
-    --newBullet = { x = (love.graphics.getWidth()/2), y = (love.graphics.getHeight()/2), img = bulletImg }
-    --newEnemy = { x = randomNumber, y = love.graphics.getHeight()-50, start_x = randomNumber, img = enemyImg }
-    -- newBullet.body = love.physics.newBody(world, newBullet.x, newBullet.y, "dynamic") -- static or kinematic
-    -- newBullet.shape = love.physics.newRectangleShape(newBullet.img:getWidth(), newBullet.img:getHeight())
-    -- newBullet.fixture = love.physics.newFixture(newBullet.body, newBullet.shape)
-    -- newBullet.fixture:setRestitution(0.9)
-    -- newBullet.body:setMass(10)
+    newBullet = { x = player.body:getX(), y = player.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
 
     table.insert(bullets, newBullet)
     canShoot = false
@@ -274,9 +265,6 @@ function game:update(dt)
   end
 
   for i, bullet in ipairs(bullets) do
-    --bullet.y = bullet.y - (250 * dt)
-    --bullet.body:applyForce( 0, 1000)
-    --bullet.x,bullet.y = bullet.body:getPosition()
 
       bullet.x = bullet.x + (bullet.dx * dt)
       bullet.y = bullet.y + (bullet.dy * dt)
@@ -372,13 +360,12 @@ function game:draw()
 
     -- draw enemies
     for i, enemy in ipairs(enemies) do
-
       love.graphics.draw(enemy.img, enemy.x, enemy.y)
     end
 
     -- draw bullets
     for i, bullet in ipairs(bullets) do
-      love.graphics.draw(bullet.img, bullet.x, bullet.y)
+      love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a)
     end
 
     --cam:detach()
