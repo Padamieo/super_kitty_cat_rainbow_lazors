@@ -21,6 +21,9 @@ flux = require 'resources.flux'
 
 require 'general' -- not sure this helps with speed and performance
 
+HC = require 'resources.HC'
+local text = {}
+
 function love.load()
   --shader = love.graphics.newShader("v.glsl")
   --love.window.setMode(0,0,{resizable = true,vsync = false}) -- apprently will fullscreen android
@@ -94,6 +97,12 @@ function game:enter()
   canShootTimer = canShootTimerMax
   bulletImg = love.graphics.newImage('img/b.png')
   bullets = {}
+
+  --test hc
+  rect = HC.rectangle(200,400,400,20)
+  mouse = HC.circle(400,300,20)
+  mouse:moveTo(love.mouse.getPosition())
+
 end
 
 
@@ -257,6 +266,17 @@ function game:update(dt)
 
   flux.update(dt)
 
+  --test hc
+  mouse:moveTo(love.mouse.getPosition())
+  rect:rotate(dt)
+  for shape, delta in pairs(HC.collisions(mouse)) do
+    text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)", delta.x, delta.y)
+  end
+  while #text > 40 do
+    table.remove(text, 1)
+  end
+
+  --update end
 end
 
 
@@ -346,6 +366,15 @@ function game:draw()
     for i, bullet in ipairs(bullets) do
       love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a)
     end
+
+  -- HC test
+  for i = 1,#text do
+    love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
+    love.graphics.print(text[#text - (i-1)], 10, i * 15)
+  end
+  love.graphics.setColor(255,255,255)
+  rect:draw('fill')
+  mouse:draw('fill')
 
 end
 

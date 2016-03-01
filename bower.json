@@ -9,6 +9,7 @@
 		"LICK" : "https://github.com/headchant/LICK.git",
 		"hump" : "https://github.com/vrld/hump.git",
 		"SUIT" : "https://github.com/vrld/SUIT.git",
-		"flux" : "https://github.com/rxi/flux.git"
+		"flux" : "https://github.com/rxi/flux.git",
+		"HC" : "git://github.com/vrld/HC.git"
 	}
 }

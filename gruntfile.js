@@ -38,6 +38,7 @@ module.exports = function(grunt) {
 					cwd: 'bower_components/',
 					src: [
 						'SUIT/*',
+						'HC/*'
 					],
 					dest: 'build/resources/',
 					nonull: false,
