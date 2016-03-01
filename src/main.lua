@@ -1,7 +1,7 @@
 
 --https://www.youtube.com/watch?v=Ueya18MrtaA
 -- look at scale  https://love2d.org/forums/viewtopic.php?f=11&t=80262
-
+-- http://www.osmstudios.com/tutorials/your-first-love2d-game-in-200-lines-part-3-of-3
 debug = true
 
 gamestate = require "resources.gamestate"
@@ -47,7 +47,7 @@ function love.load()
 end
 
 player = {touch = 0, lazers = false, fire = false, x = 0, y = 0, start = 0, endtime = 0}
-
+cat = {active = 0}
 --following to go in game.lua but bellow for development
 game = {}
 
@@ -70,19 +70,20 @@ function game:enter()
   x_value = (w/2)
   y_value = ((h/4)*3)
 
-  player = {active = 0, x = x_value, y = y_value, image = nil }
-  player.image = love.graphics.newImage(characters["default"].image)
-  anim = anim8.newGrid(200, 200, player.image:getWidth(), player.image:getHeight())
-  player.anim = {
+  cat = {active = 0, x = x_value, y = y_value, image = nil }
+  cat.image = love.graphics.newImage(characters["default"].image)
+  anim = anim8.newGrid(200, 200, cat.image:getWidth(), cat.image:getHeight())
+  cat.anim = {
     s = anim8.newAnimation(anim('1-1', 1), 0.1),
     se = anim8.newAnimation(anim('1-1', 1), 0.1)
   }
 
-  player.body = love.physics.newBody(world, player.x, player.y, "dynamic") -- static or kinematic
-  player.shape = love.physics.newRectangleShape(characters["default"].height, characters["default"].width)
-  player.fixture = love.physics.newFixture(player.body, player.shape)
-  player.fixture:setRestitution(0.9) -- bounce
-  player.body:setMass(100)
+  cat.body = love.physics.newBody(world, cat.x, cat.y, "dynamic") -- static or kinematic
+  cat.shape = love.physics.newRectangleShape(characters["default"].height, characters["default"].width)
+  cat.fixture = love.physics.newFixture(cat.body, cat.shape)
+  cat.fixture:setRestitution(0.9) -- bounce
+  cat.body:setMass(100)
+  cat.b = HC.circle(400,300,20)
 
   --enemies
   createEnemyTimerMax = 1
@@ -112,7 +113,7 @@ function game:update(dt)
   -- dt_time = dt
   -- shader:send("dt_time", dt_time)
 
-  if player.active == 1 then
+  if cat.active == 1 then
     world:update(dt) -- physics
   end
 
@@ -122,25 +123,25 @@ function game:update(dt)
 
   if player.lazers == true then
 
-    offset = player.body:getY()-(h/8)
-    player.body:setY(player.body:getY() - (offset*1*dt))
-    --player.body:setLinearVelocity(0, offset*-2)
-    player.body:setLinearVelocity(0, 1)
-    player.dir = 'w'
+    offset = cat.body:getY()-(h/8)
+    cat.body:setY(cat.body:getY() - (offset*1*dt))
+    --cat.body:setLinearVelocity(0, offset*-2)
+    cat.body:setLinearVelocity(0, 1)
+    cat.dir = 'w'
 
   else
-    player.dir = 'n'
+    cat.dir = 'n'
   end
 
   --animation set
-  if player.dir == 'w' then
+  if cat.dir == 'w' then
 
   else
-    player.anim.s:update(dt)
+    cat.anim.s:update(dt)
   end
 
   -- if below edge end game return to menu for now
-  if (player.body:getY() > h-(h/10)) then
+  if (cat.body:getY() > h-(h/10)) then
     return gamestate.switch(menu)
   end
 
@@ -242,12 +243,13 @@ function game:update(dt)
 
     local mouseX = player.x
     local mouseY = player.y
-    local angle = math.atan2((mouseY - player.body:getY()), (mouseX - player.body:getX()))
+    local angle = math.atan2((mouseY - cat.body:getY()), (mouseX - cat.body:getX()))
 
-    local bulletDx = 800 * math.cos(angle)
-    local bulletDy = 800 * math.sin(angle)
+    local bulletDx = 80 * math.cos(angle)
+    local bulletDy = 80 * math.sin(angle)
 
-    newBullet = { x = player.body:getX(), y = player.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
+    newBullet = { x = cat.body:getX(), y = cat.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
+    newBullet.b = HC.rectangle(10,200,10,20)
 
     table.insert(bullets, newBullet)
     canShoot = false
@@ -259,6 +261,8 @@ function game:update(dt)
       bullet.x = bullet.x + (bullet.dx * dt)
       bullet.y = bullet.y + (bullet.dy * dt)
 
+      --bullet.b:moveTo(bullet.x, bullet.y)
+
     if (bullet.x < -10) or (bullet.x > love.graphics.getWidth() + 10) or (bullet.y < -10) or (bullet.y > love.graphics.getHeight() + 10) then
     	table.remove(bullets, i)
     end
@@ -266,6 +270,7 @@ function game:update(dt)
 
   flux.update(dt)
 
+  cat.b:moveTo(cat.body:getX(), cat.body:getY())
   --test hc
   mouse:moveTo(love.mouse.getPosition())
   rect:rotate(dt)
@@ -287,8 +292,8 @@ end
 
 function love.mousepressed(x, y, button, istouch)
 
-  if player.active == 0 then
-    player.active = 1
+  if cat.active == 0 then
+    cat.active = 1
   else
 
     player.touch = 1
@@ -337,7 +342,7 @@ function game:draw()
       love.graphics.circle( "fill", player.x, player.y, circle.size, 100*scale )
 
       if player.fire == true then
-        love.graphics.line( player.x, player.y, player.body:getX(), player.body:getY() )
+        love.graphics.line( player.x, player.y, cat.body:getX(), cat.body:getY() )
       end
 
     end
@@ -351,10 +356,10 @@ function game:draw()
 
     --love.graphics.setColor(250, 250, 250)
 
-    if player.dir == 'w' then
-      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
+    if cat.dir == 'w' then
+      cat.anim.s:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1, 1, 100, 100)
     else
-      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 100, 100)
+      cat.anim.s:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1, 1, 100, 100)
     end
 
     -- draw enemies
@@ -364,7 +369,10 @@ function game:draw()
 
     -- draw bullets
     for i, bullet in ipairs(bullets) do
+      love.graphics.setColor(255,255,255)
       love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a)
+      love.graphics.setColor(200,100,200,200)
+      bullet.b:draw('fill', bullet.x, bullet.y, bullet.a)
     end
 
   -- HC test
@@ -375,6 +383,8 @@ function game:draw()
   love.graphics.setColor(255,255,255)
   rect:draw('fill')
   mouse:draw('fill')
+  love.graphics.setColor(100,100,255,100)
+  cat.b:draw('fill')
 
 end
 
