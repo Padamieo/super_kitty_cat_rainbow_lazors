@@ -83,7 +83,7 @@ function game:enter()
   cat.fixture = love.physics.newFixture(cat.body, cat.shape)
   cat.fixture:setRestitution(0.9) -- bounce
   cat.body:setMass(100)
-  cat.b = HC.circle(400,300,20)
+  cat.b = HC.circle(600,600,70)
 
   --enemies
   createEnemyTimerMax = 1
@@ -103,6 +103,21 @@ function game:enter()
   rect = HC.rectangle(200,400,400,20)
   mouse = HC.circle(400,300,20)
   mouse:moveTo(love.mouse.getPosition())
+
+    function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
+      return x1 < x2+w2 and
+              x2 < x1+w1 and
+              y1 < y2+h2 and
+              y2 < y1+h1
+    end
+
+local imgg = love.graphics.newImage('img/b.png')
+psystem = love.graphics.newParticleSystem(imgg, 32)
+psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
+--psystem:setEmissionRate(20)
+psystem:setSizeVariation(0.5)
+psystem:setLinearAcceleration(-600, -600, 600, 600) -- Random movement in all directions.
+psystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
 
 end
 
@@ -185,7 +200,7 @@ function game:update(dt)
       createEnemyTimer = createEnemyTimerMax
       randomNumber = math.random(10, love.graphics.getWidth() - 10)
 
-      newEnemy = { x = randomNumber, y = h, start_x = randomNumber, img = enemyImg }
+      newEnemy = { x = randomNumber, y = h, start_x = randomNumber, alive = true, img = enemyImg }
 
       table.insert(enemies, newEnemy)
     end
@@ -245,11 +260,10 @@ function game:update(dt)
     local mouseY = player.y
     local angle = math.atan2((mouseY - cat.body:getY()), (mouseX - cat.body:getX()))
 
-    local bulletDx = 80 * math.cos(angle)
-    local bulletDy = 80 * math.sin(angle)
+    local bulletDx = 800 * math.cos(angle)
+    local bulletDy = 800 * math.sin(angle)
 
     newBullet = { x = cat.body:getX(), y = cat.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
-    newBullet.b = HC.rectangle(10,200,10,20)
 
     table.insert(bullets, newBullet)
     canShoot = false
@@ -260,8 +274,6 @@ function game:update(dt)
 
       bullet.x = bullet.x + (bullet.dx * dt)
       bullet.y = bullet.y + (bullet.dy * dt)
-
-      --bullet.b:moveTo(bullet.x, bullet.y)
 
     if (bullet.x < -10) or (bullet.x > love.graphics.getWidth() + 10) or (bullet.y < -10) or (bullet.y > love.graphics.getHeight() + 10) then
     	table.remove(bullets, i)
@@ -280,6 +292,26 @@ function game:update(dt)
   while #text > 40 do
     table.remove(text, 1)
   end
+
+
+  for i, enemy in ipairs(enemies) do
+  	for j, bullet in ipairs(bullets) do
+  		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), bullet.x, bullet.y, bullet.img:getWidth(), bullet.img:getHeight()) then
+        psystem:emit(32)
+  			table.remove(bullets, j)
+  			table.remove(enemies, i)
+  			--score = score + 1
+  		end
+  	end
+    --
+  	-- if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), player.x, player.y, player.img:getWidth(), player.img:getHeight())
+  	-- and isAlive then
+  	-- 	table.remove(enemies, i)
+  	-- 	isAlive = false
+  	-- end
+  end
+
+  psystem:update(dt)
 
   --update end
 end
@@ -369,10 +401,7 @@ function game:draw()
 
     -- draw bullets
     for i, bullet in ipairs(bullets) do
-      love.graphics.setColor(255,255,255)
       love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a)
-      love.graphics.setColor(200,100,200,200)
-      bullet.b:draw('fill', bullet.x, bullet.y, bullet.a)
     end
 
   -- HC test
@@ -385,6 +414,8 @@ function game:draw()
   mouse:draw('fill')
   love.graphics.setColor(100,100,255,100)
   cat.b:draw('fill')
+
+  love.graphics.draw(psystem, enemy.x, enemy.y)
 
 end
 
