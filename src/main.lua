@@ -105,10 +105,7 @@ function game:enter()
   mouse:moveTo(love.mouse.getPosition())
 
     function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
-      return x1 < x2+w2 and
-              x2 < x1+w1 and
-              y1 < y2+h2 and
-              y2 < y1+h1
+      return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
     end
 
 local imgg = love.graphics.newImage('img/b.png')
@@ -268,6 +265,7 @@ function game:update(dt)
     table.insert(bullets, newBullet)
     canShoot = false
     canShootTimer = canShootTimerMax
+    player.fire = false
   end
 
   for i, bullet in ipairs(bullets) do
@@ -297,6 +295,7 @@ function game:update(dt)
   for i, enemy in ipairs(enemies) do
   	for j, bullet in ipairs(bullets) do
   		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), bullet.x, bullet.y, bullet.img:getWidth(), bullet.img:getHeight()) then
+        psystem:moveTo( enemy.x, enemy.y )
         psystem:emit(32)
   			table.remove(bullets, j)
   			table.remove(enemies, i)
@@ -323,9 +322,12 @@ end
 
 
 function love.mousepressed(x, y, button, istouch)
-
+  circle.size = 0
   if cat.active == 0 then
     cat.active = 1
+    player.touch = 1
+    player.start = love.timer.getTime( )
+    player.endtime = love.timer.getTime( ) + 0.8
   else
 
     player.touch = 1
@@ -346,11 +348,7 @@ end
 function love.mousereleased( x, y, button, istouch )
   player.touch = 0
   player.lazers = false
-  -- print(player.start)
-  -- print(player.endtime)
-  if player.fire == true then
-
-  end
+  circle.size = 0
 end
 
 
@@ -415,7 +413,8 @@ function game:draw()
   love.graphics.setColor(100,100,255,100)
   cat.b:draw('fill')
 
-  love.graphics.draw(psystem, enemy.x, enemy.y)
+  love.graphics.setColor(255,255,255)
+  love.graphics.draw(psystem)
 
 end
 
