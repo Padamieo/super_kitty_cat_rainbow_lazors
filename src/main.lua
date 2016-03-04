@@ -46,7 +46,7 @@ function love.load()
 
 end
 
-player = {touch = 0, lazers = false, fire = false, x = 0, y = 0, start = 0, endtime = 0}
+player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
 cat = {active = 0}
 --following to go in game.lua but bellow for development
 game = {}
@@ -56,6 +56,8 @@ function game:enter()
   --love.window.setMode(0,0,{resizable = true,vsync = false})
   first_move = 0
   scale = love.window.getPixelScale( )
+
+  score = 0
 
   world = {}
   love.physics.setMeter(10)
@@ -94,34 +96,37 @@ function game:enter()
 
   --bullets
   canShoot = true
-  canShootTimerMax = 0.2
+  canShootTimerMax = 0.1
   canShootTimer = canShootTimerMax
   bulletImg = love.graphics.newImage('img/b.png')
   bullets = {}
 
   --test hc
-  rect = HC.rectangle(200,400,400,20)
   mouse = HC.circle(400,300,20)
   mouse:moveTo(love.mouse.getPosition())
 
-    function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
-      return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
-    end
+  function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
+    return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
+  end
 
-local imgg = love.graphics.newImage('img/b.png')
-psystem = love.graphics.newParticleSystem(imgg, 32)
-psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
---psystem:setEmissionRate(20)
-psystem:setSizeVariation(0.5)
-psystem:setLinearAcceleration(-600, -600, 600, 600) -- Random movement in all directions.
-psystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
+
+  -- need multipl of this particle system for on deman explotions
+  local imgg = love.graphics.newImage('img/b.png')
+  psystem = love.graphics.newParticleSystem(imgg, 32)
+  psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
+  --psystem:setEmissionRate(20)
+  psystem:setSizeVariation(0.5)
+  psystem:setLinearAcceleration(-600, -600, 600, 600) -- Random movement in all directions.
+  psystem:setSpin(10)
+  psystem:setSpinVariation(2, 6)
+  psystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
 
 end
 
 
 
 function game:update(dt)
-
+  
   -- dt_time = dt
   -- shader:send("dt_time", dt_time)
 
@@ -167,24 +172,14 @@ function game:update(dt)
     if player.endtime ~= nil then
       time = love.timer.getTime( )
       if time > player.endtime then
-        player.fire = false
         player.lazers = true
+        canShoot = false
       end
       --print(player.endtime)
     end
 
   else
-
-    --if released before fire lazer momentum
-    if player.endtime ~= nil then
-      time = love.timer.getTime( )
-      if time < player.endtime then
-        --need to probably spawn a fireball
-        print('fire')
-        player.fire = true
-      end
-
-    end
+      --canShoot = false
     --added to turn of circle size animation
     circle.size = 0
 
@@ -250,24 +245,6 @@ function game:update(dt)
     canShoot = true
   end
 
-  -- either love.keyboard.isDown('z') or player.fire for now.
-  if player.fire and canShoot then
-
-    local mouseX = player.x
-    local mouseY = player.y
-    local angle = math.atan2((mouseY - cat.body:getY()), (mouseX - cat.body:getX()))
-
-    local bulletDx = 800 * math.cos(angle)
-    local bulletDy = 800 * math.sin(angle)
-
-    newBullet = { x = cat.body:getX(), y = cat.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
-
-    table.insert(bullets, newBullet)
-    canShoot = false
-    canShootTimer = canShootTimerMax
-    player.fire = false
-  end
-
   for i, bullet in ipairs(bullets) do
 
       bullet.x = bullet.x + (bullet.dx * dt)
@@ -283,7 +260,7 @@ function game:update(dt)
   cat.b:moveTo(cat.body:getX(), cat.body:getY())
   --test hc
   mouse:moveTo(love.mouse.getPosition())
-  rect:rotate(dt)
+
   for shape, delta in pairs(HC.collisions(mouse)) do
     text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)", delta.x, delta.y)
   end
@@ -299,7 +276,7 @@ function game:update(dt)
         psystem:emit(32)
   			table.remove(bullets, j)
   			table.remove(enemies, i)
-  			--score = score + 1
+  			score = score + 1
   		end
   	end
     --
@@ -349,6 +326,33 @@ function love.mousereleased( x, y, button, istouch )
   player.touch = 0
   player.lazers = false
   circle.size = 0
+
+  -- if player.endtime ~= nil then
+  --   time = love.timer.getTime( )
+  --   if time < player.endtime then
+  --     -- spawn a fireball example
+  --   end
+  -- end
+
+  --if player.endtime ~= nil then
+    time = love.timer.getTime( )
+    if time < player.endtime and canShoot then
+
+      local mouseX = player.x
+      local mouseY = player.y
+      local angle = math.atan2((mouseY - cat.body:getY()), (mouseX - cat.body:getX()))
+
+      local bulletDx = 800 * math.cos(angle)
+      local bulletDy = 800 * math.sin(angle)
+
+      newBullet = { x = cat.body:getX(), y = cat.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
+
+      table.insert(bullets, newBullet)
+      canShoot = false
+      canShootTimer = canShootTimerMax
+    end
+  --end
+
 end
 
 
@@ -371,9 +375,7 @@ function game:draw()
       -- tween fluc maybe : https://love2d.org/forums/viewtopic.php?t=77904&p=168300
       love.graphics.circle( "fill", player.x, player.y, circle.size, 100*scale )
 
-      if player.fire == true then
-        love.graphics.line( player.x, player.y, cat.body:getX(), cat.body:getY() )
-      end
+      --love.graphics.line( player.x, player.y, cat.body:getX(), cat.body:getY() )
 
     end
 
@@ -407,14 +409,14 @@ function game:draw()
     love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
     love.graphics.print(text[#text - (i-1)], 10, i * 15)
   end
-  love.graphics.setColor(255,255,255)
-  rect:draw('fill')
-  mouse:draw('fill')
-  love.graphics.setColor(100,100,255,100)
-  cat.b:draw('fill')
 
-  love.graphics.setColor(255,255,255)
-  love.graphics.draw(psystem)
+    love.graphics.setColor(255,255,255)
+    mouse:draw('fill')
+    love.graphics.setColor(100,100,255,100)
+    cat.b:draw('fill')
+
+    love.graphics.setColor(255,255,255)
+    love.graphics.draw(psystem)
 
 end
 
