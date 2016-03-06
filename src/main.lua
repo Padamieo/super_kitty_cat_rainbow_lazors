@@ -27,6 +27,10 @@ local text = {}
 function love.load()
   --shader = love.graphics.newShader("v.glsl")
   --love.window.setMode(0,0,{resizable = true,vsync = false}) -- apprently will fullscreen android
+
+  scale = love.window.getPixelScale( )
+  total_score = 0
+
   gamestate.registerEvents()
   gamestate.switch(menu)
 
@@ -55,8 +59,6 @@ game = {}
 function game:enter()
   --love.window.setMode(0,0,{resizable = true,vsync = false})
   first_move = 0
-  scale = love.window.getPixelScale( )
-
   score = 0
 
   world = {}
@@ -64,7 +66,7 @@ function game:enter()
   world = love.physics.newWorld(0, 80, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
 
   characters = {
-    default = { height = 50, width = 50, image = 'img/placeholder_kitty.png' }
+    default = { height = 50, width = 50, image = 'img/player_placeholder.png' } -- placeholder_kitty
   }
 
   h = love.graphics.getHeight()
@@ -76,16 +78,26 @@ function game:enter()
   cat.image = love.graphics.newImage(characters["default"].image)
   anim = anim8.newGrid(200, 200, cat.image:getWidth(), cat.image:getHeight())
   cat.anim = {
-    s = anim8.newAnimation(anim('1-1', 1), 0.1),
-    se = anim8.newAnimation(anim('1-1', 1), 0.1)
+    wait = anim8.newAnimation(anim('2-2', 1), 0.1),
+    rainbow = anim8.newAnimation(anim('1-1', 1), 0.1)
   }
 
   cat.body = love.physics.newBody(world, cat.x, cat.y, "dynamic") -- static or kinematic
-  cat.shape = love.physics.newRectangleShape(characters["default"].height, characters["default"].width)
+  cat.shape = love.physics.newRectangleShape(characters["default"].height*scale, characters["default"].width*scale)
   cat.fixture = love.physics.newFixture(cat.body, cat.shape)
   cat.fixture:setRestitution(0.9) -- bounce
   cat.body:setMass(100)
   cat.b = HC.circle(600,600,70)
+
+  rainbow = {}
+  rainbow_image = 'img/rainbow.png'
+  rainbow.image = love.graphics.newImage(rainbow_image)
+  anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
+  rainbow.anim = {
+    animate = anim8.newAnimation(anim('1-1', 1), 0.1),
+  }
+
+
 
   --enemies
   createEnemyTimerMax = 1
@@ -109,7 +121,6 @@ function game:enter()
     return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
   end
 
-
   -- need multipl of this particle system for on deman explotions
   local imgg = love.graphics.newImage('img/b.png')
   psystem = love.graphics.newParticleSystem(imgg, 32)
@@ -121,12 +132,15 @@ function game:enter()
   psystem:setSpinVariation(2, 6)
   psystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
 
+  font = love.graphics.newFont(30) -- the number denotes the font size
+  love.graphics.setFont(font)
+
 end
 
 
 
 function game:update(dt)
-  
+
   -- dt_time = dt
   -- shader:send("dt_time", dt_time)
 
@@ -138,27 +152,39 @@ function game:update(dt)
     love.event.push("quit")
   end
 
+  -- for playing around with screen shake
+  if love.keyboard.isDown('m') then
+    startShake(1, 1)
+  end
+
   if player.lazers == true then
 
     offset = cat.body:getY()-(h/8)
     cat.body:setY(cat.body:getY() - (offset*1*dt))
     --cat.body:setLinearVelocity(0, offset*-2)
     cat.body:setLinearVelocity(0, 1)
-    cat.dir = 'w'
+    cat.dir = 'fire'
 
   else
     cat.dir = 'n'
   end
 
   --animation set
-  if cat.dir == 'w' then
-
+  if cat.dir == 'fire' then
+    --startShake(1, 1)
+    cat.anim.rainbow:update(dt)
   else
-    cat.anim.s:update(dt)
+    cat.anim.wait:update(dt)
   end
+
+  -- animation for fire
+  rainbow.anim.animate:update(dt)
 
   -- if below edge end game return to menu for now
   if (cat.body:getY() > h-(h/10)) then
+    if score > total_score then
+      total_score = score
+    end
     return gamestate.switch(menu)
   end
 
@@ -167,7 +193,7 @@ function game:update(dt)
     player.y = love.mouse.getY( )
 
     --do not like this timer seems off
-    flux.to(circle, 0.3, {size = 100*scale }):ease("linear")
+    flux.to(circle, 0.3, {size = 80*scale }):ease("linear")
 
     if player.endtime ~= nil then
       time = love.timer.getTime( )
@@ -261,17 +287,17 @@ function game:update(dt)
   --test hc
   mouse:moveTo(love.mouse.getPosition())
 
-  for shape, delta in pairs(HC.collisions(mouse)) do
-    text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)", delta.x, delta.y)
-  end
-  while #text > 40 do
-    table.remove(text, 1)
-  end
+  -- for shape, delta in pairs(HC.collisions(mouse)) do
+  --   text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)", delta.x, delta.y)
+  -- end
+  -- while #text > 40 do
+  --   table.remove(text, 1)
+  -- end
 
 
   for i, enemy in ipairs(enemies) do
   	for j, bullet in ipairs(bullets) do
-  		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), bullet.x, bullet.y, bullet.img:getWidth(), bullet.img:getHeight()) then
+  		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, bullet.x, bullet.y, bullet.img:getWidth()*scale, bullet.img:getHeight()*scale) then
         psystem:moveTo( enemy.x, enemy.y )
         psystem:emit(32)
   			table.remove(bullets, j)
@@ -288,6 +314,10 @@ function game:update(dt)
   end
 
   psystem:update(dt)
+
+  if t < shakeDuration then
+    t = t + dt
+  end
 
   --update end
 end
@@ -370,10 +400,10 @@ function game:draw()
       myColor = {255, 255, 255, 100}
       love.graphics.setColor(myColor)
 
-      love.graphics.circle( "line", player.x, player.y, 100*scale, 100 )
+      love.graphics.circle( "line", player.x, player.y, 80*scale, 25 )
 
       -- tween fluc maybe : https://love2d.org/forums/viewtopic.php?t=77904&p=168300
-      love.graphics.circle( "fill", player.x, player.y, circle.size, 100*scale )
+      love.graphics.circle( "fill", player.x, player.y, circle.size, 80*scale, 25 )
 
       --love.graphics.line( player.x, player.y, cat.body:getX(), cat.body:getY() )
 
@@ -388,27 +418,31 @@ function game:draw()
 
     --love.graphics.setColor(250, 250, 250)
 
-    if cat.dir == 'w' then
-      cat.anim.s:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1, 1, 100, 100)
+    if cat.dir == 'fire' then
+      cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
+      love.graphics.setColor(100,100,255,90)
+      rainbow.anim.animate:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(rainbow.image:getHeight()/3), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
+      love.graphics.setColor(255,255,255)
     else
-      cat.anim.s:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1, 1, 100, 100)
+      cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
     end
 
     -- draw enemies
     for i, enemy in ipairs(enemies) do
-      love.graphics.draw(enemy.img, enemy.x, enemy.y)
+      love.graphics.draw(enemy.img, enemy.x, enemy.y, 0, 1*scale, 1*scale)
     end
 
     -- draw bullets
     for i, bullet in ipairs(bullets) do
-      love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a)
+      love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
     end
 
   -- HC test
-  for i = 1,#text do
-    love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
-    love.graphics.print(text[#text - (i-1)], 10, i * 15)
-  end
+  -- for i = 1,#text do
+  --   love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
+  --   love.graphics.print(text[#text - (i-1)], 10, i * 15)
+  -- end
+
 
     love.graphics.setColor(255,255,255)
     mouse:draw('fill')
@@ -418,6 +452,15 @@ function game:draw()
     love.graphics.setColor(255,255,255)
     love.graphics.draw(psystem)
 
+    love.graphics.print(score, ww-100, hh-150)
+
+  if t < shakeDuration then
+    local dx = love.math.random(-shakeMagnitude, shakeMagnitude)
+    local dy = love.math.random(-shakeMagnitude, shakeMagnitude)
+    love.graphics.translate(dx, dy)
+  end
+
+  --end of game draw
 end
 
 return game

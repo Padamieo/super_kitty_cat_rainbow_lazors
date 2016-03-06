@@ -93,9 +93,9 @@ module.exports = function(grunt) {
 		'copy:build_game'
 	]);
 
-	// grunt.registerTask('spritesheet', [
-	// 	'sprite',
-	// ]);
+	grunt.registerTask('spritesheet', [
+		'sprite',
+	]);
 
 	grunt.registerTask('default', [
 		'copy:build_game',

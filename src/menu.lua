@@ -2,9 +2,6 @@ local menu = {}
 
 local input = {text = ""}
 
-hh = 0
-ww = 10
-
 function menu:enter()
   print("menu")
   love.graphics.setBackgroundColor( 0, 10, 25 )
@@ -12,6 +9,10 @@ function menu:enter()
 
   hh = love.graphics.getHeight()
   ww = love.graphics.getWidth()
+
+  font = love.graphics.newFont(30) -- the number denotes the font size
+  love.graphics.setFont(font)
+  --love.graphics.setNewFont(size)
 
 end
 
@@ -24,8 +25,8 @@ function menu:update(dt)
     ww = love.graphics.getWidth()
   end
 
-  suit.layout:reset(ww/4,100)
-  suit.Input(input, suit.layout:row(ww/2,40))
+  suit.layout:reset(ww/4,100*scale)
+  suit.Input(input, suit.layout:row(ww/2,60*scale))
   suit.Label("Hello, "..input.text, {align = "left"}, suit.layout:row())
   suit.layout:row()
 
@@ -45,13 +46,13 @@ function menu:update(dt)
 
 end
 
-
-
 function menu:draw()
   --cam:attach()
     --love.graphics.print("Press g to continue", 10, 10)
     suit.draw()
   --cam:detach()
+
+love.graphics.print(total_score, ww-100, hh-150)
 end
 
 function menu:keyreleased(key, code)

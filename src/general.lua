@@ -23,8 +23,7 @@ function positive_num(value)
   return value
 end
 
-function set_zoom()
-  --h = love.graphics.getHeight()
-  local w = love.graphics.getWidth()
-  return 1920 / w
+t, shakeDuration, shakeMagnitude = 0, -1, 0
+function startShake(duration, magnitude)
+    t, shakeDuration, shakeMagnitude = 0, duration or 1, magnitude or 5
 end
