@@ -92,10 +92,16 @@ function game:enter()
   rainbow = {}
   rainbow_image = 'img/rainbow.png'
   rainbow.image = love.graphics.newImage(rainbow_image)
+
+  factor = ww/200
+  x_factor = math.round(200*factor)
+  y_factor = math.round(500*factor)
+  print(x_factor)
   anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
   rainbow.anim = {
-    animate = anim8.newAnimation(anim('1-1', 1), 0.1),
+    animate = anim8.newAnimation(anim('1-10', 1), 0.1),
   }
+
 
 
 
@@ -421,7 +427,7 @@ function game:draw()
     if cat.dir == 'fire' then
       cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
       love.graphics.setColor(100,100,255,90)
-      rainbow.anim.animate:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(rainbow.image:getHeight()/3), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
+      rainbow.anim.animate:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
       love.graphics.setColor(255,255,255)
     else
       cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)

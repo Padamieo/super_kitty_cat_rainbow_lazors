@@ -23,6 +23,12 @@ function positive_num(value)
   return value
 end
 
+function math.round(n, deci)
+  deci = 10^(deci or 0)
+  return math.floor(n*deci+.5)/deci
+end
+
+
 t, shakeDuration, shakeMagnitude = 0, -1, 0
 function startShake(duration, magnitude)
     t, shakeDuration, shakeMagnitude = 0, duration or 1, magnitude or 5
