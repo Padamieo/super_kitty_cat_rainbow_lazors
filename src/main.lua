@@ -90,13 +90,13 @@ function game:enter()
   cat.b = HC.circle(600,600,70)
 
   rainbow = {}
-  rainbow_image = 'img/rainbow.png'
+  rainbow_image = 'img/rainbow_r.png'
   rainbow.image = love.graphics.newImage(rainbow_image)
 
   factor = ww/200
   anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
   rainbow.anim = {
-    loop = anim8.newAnimation(anim('1-10', 1), 0.1),
+    loop = anim8.newAnimation(anim('24-1', 1), 0.1),
   }
 
 
