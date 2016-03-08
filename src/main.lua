@@ -96,7 +96,7 @@ function game:enter()
   factor = ww/200
   anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
   rainbow.anim = {
-    loop = anim8.newAnimation(anim('24-1', 1), 0.1),
+    loop = anim8.newAnimation(anim('1-24', 1), 0.5),
   }
 
 
@@ -138,18 +138,18 @@ function game:enter()
   font = love.graphics.newFont(30) -- the number denotes the font size
   love.graphics.setFont(font)
 
-bg1 = {}
-bg1.img = love.graphics.newImage("img/background_wall_temp.png")
-bg1.x = 0
-bg1.width = bg1.img:getWidth()
+  bg1 = {}
+  bg1.img = love.graphics.newImage("img/background_wall_temp.png")
+  bg1.y = 0
+  bg1.height = bg1.img:getHeight()
 
-bg2 = {}
-bg2.img = love.graphics.newImage("img/background_wall_temp.png")
-bg2.x = 0
-bg2.width = bg2.img:getWidth()
+  bg2 = {}
+  bg2.img = love.graphics.newImage("img/background_wall_temp.png")
+  bg2.y = 0
+  bg2.height = bg2.img:getHeight()
 
-speed = 250
-
+  background_speed = 250
+  --game enter end
 end
 
 
@@ -262,8 +262,10 @@ function game:update(dt)
 
     if player.lazers == true then
       speed = 15
+      background_speed = 250
     else
       speed = 70
+      background_speed = 0
     end
 
     vv = ture
@@ -332,15 +334,15 @@ function game:update(dt)
     t = t + dt
   end
 
-  bg1.x = bg1.x + speed * dt
-  bg2.x = bg2.x + speed * dt
+  bg1.y = bg1.y + background_speed * dt
+  bg2.y = bg2.y + background_speed * dt
 
-  if bg1.x > love.graphics.getWidth() then
-    bg1.x = bg2.x - bg1.width
+  if bg1.y > love.graphics.getHeight() then
+    bg1.y = bg2.y - bg1.height
   end
 
-  if bg2.x > love.graphics.getWidth() then
-    bg2.x = bg1.x - bg2.width
+  if bg2.y > love.graphics.getHeight() then
+    bg2.y = bg1.y - bg2.height
   end
 
   --update end
@@ -419,8 +421,8 @@ function game:draw()
   -- end
 
   love.graphics.setColor(255,255,255,255)
-  love.graphics.draw(bg1.img, bg1.x, 0)
-  love.graphics.draw(bg2.img, bg2.x, 0)
+  love.graphics.draw(bg1.img, 0, bg1.y)
+  love.graphics.draw(bg2.img, 0, bg2.y)
 
   if player.touch == 1 then
     --needs handling outside of lazers
