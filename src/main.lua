@@ -145,10 +145,10 @@ function game:enter()
 
   bg2 = {}
   bg2.img = love.graphics.newImage("img/background_wall_temp.png")
-  bg2.y = 0
+  bg2.y = -love.graphics.getWidth()-bg2.img:getHeight()
   bg2.height = bg2.img:getHeight()
 
-  background_speed = 250
+  background_speed = 200
   --game enter end
 end
 
@@ -262,7 +262,7 @@ function game:update(dt)
 
     if player.lazers == true then
       speed = 15
-      background_speed = 250
+      background_speed = 200
     else
       speed = 70
       background_speed = 0
