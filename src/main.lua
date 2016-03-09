@@ -96,7 +96,8 @@ function game:enter()
   factor = ww/200
   anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
   rainbow.anim = {
-    loop = anim8.newAnimation(anim('1-24', 1), 0.5),
+    start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05),
+    loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
   }
 
 
