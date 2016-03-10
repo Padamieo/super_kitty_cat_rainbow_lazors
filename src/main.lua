@@ -125,7 +125,7 @@ function game:enter()
     return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
   end
 
-  -- need multipl of this particle system for on deman explotions
+  -- need multipl of this particle system for on demand explotions
   local imgg = love.graphics.newImage('img/b.png')
   psystem = love.graphics.newParticleSystem(imgg, 32)
   psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
@@ -227,58 +227,60 @@ function game:update(dt)
   end
 
   --enemey elements
-  createEnemyTimer = createEnemyTimer - (1 * dt)
-  if createEnemyTimer < 0 then
-    if table.getn(enemies) < enemy_limit then
-      createEnemyTimer = createEnemyTimerMax
-      randomNumber = math.random(10, love.graphics.getWidth() - 10)
+  if cat.active == 1 then
+    createEnemyTimer = createEnemyTimer - (1 * dt)
+    if createEnemyTimer < 0 then
+      if table.getn(enemies) < enemy_limit then
+        createEnemyTimer = createEnemyTimerMax
+        randomNumber = math.random(10, love.graphics.getWidth() - 10)
 
-      newEnemy = { x = randomNumber, y = h, start_x = randomNumber, alive = true, img = enemyImg }
+        newEnemy = { x = randomNumber, y = h, start_x = randomNumber, alive = true, img = enemyImg }
 
-      table.insert(enemies, newEnemy)
-    end
-  end
-
-
-  for i, enemy in ipairs(enemies) do
-    -- enemy.y = enemy.y - (10 * dt)
-    -- halfpost = love.graphics.getWidth()/2
-    --
-    -- vv = enemy.x + dt
-    -- enemy.x = math.sin(vv) * enemy.start_x
-    --
-    -- if i == 1 then
-    --   print(enemy.x)
-    -- end
-    --
-    -- if enemy.x < love.graphics.getWidth() then
-    --   --enemy.x = 100 * math.sin(dt*math.pi)
-    --   if i == 1 then
-    --     -- print(enemy.x)
-    --   end
-    --
-    -- end
- -- enemy.x < 0+love.graphics.getWidth()/10 then
-    -- flux.to(enemy, 0.3, {size = 50 }):ease("linear")
-
-    if player.lazers == true then
-      speed = 15
-      background_speed = 200
-    else
-      speed = 70
-      background_speed = 0
-    end
-
-    vv = ture
-    if vv == true then
-      enemy.y = enemy.y -( speed * dt )
-    else
-      enemy.y = enemy.y -( speed * dt )
+        table.insert(enemies, newEnemy)
+      end
     end
 
 
-    if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
-      table.remove(enemies, i)
+    for i, enemy in ipairs(enemies) do
+      -- enemy.y = enemy.y - (10 * dt)
+      -- halfpost = love.graphics.getWidth()/2
+      --
+      -- vv = enemy.x + dt
+      -- enemy.x = math.sin(vv) * enemy.start_x
+      --
+      -- if i == 1 then
+      --   print(enemy.x)
+      -- end
+      --
+      -- if enemy.x < love.graphics.getWidth() then
+      --   --enemy.x = 100 * math.sin(dt*math.pi)
+      --   if i == 1 then
+      --     -- print(enemy.x)
+      --   end
+      --
+      -- end
+   -- enemy.x < 0+love.graphics.getWidth()/10 then
+      -- flux.to(enemy, 0.3, {size = 50 }):ease("linear")
+
+      if player.lazers == true then
+        speed = 15
+        background_speed = 200
+      else
+        speed = 70
+        background_speed = 0
+      end
+
+      vv = ture
+      if vv == true then
+        enemy.y = enemy.y -( speed * dt )
+      else
+        enemy.y = enemy.y -( speed * dt )
+      end
+
+
+      if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
+        table.remove(enemies, i)
+      end
     end
   end
 
