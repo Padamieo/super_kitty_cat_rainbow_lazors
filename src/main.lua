@@ -35,20 +35,25 @@ function love.load()
   gamestate.switch(menu)
 
   circle = {size = 0}
-  -- local count = 10
-  -- function sequence()
-  -- -- Abort if we hit our repeat limit
-  -- count = count - 1               -- Omit this to repeat forever
-  -- if count == 0 then return end   -- and this
-  --   -- Do tween
-  --   flux.to(circle, 2, { size = 100 }):ease("elasticout")
-  --     :after(circle, 1, { size = 0 }):ease("quadin")
-  --     :oncomplete(sequence) -- Intialise the next iteration of the sequence
+
+  -- dir = love.filesystem.getSaveDirectory()
+  -- print(dir)
+  -- -- isDir = love.filesystem.isDirectory( 'pan' )
+  -- -- print(isDir)
+  -- isFile = love.filesystem.isFile( 'save.txt' )
+  -- print(isFile)
+  -- if isFile == false then
+  --   -- success = love.filesystem.createDirectory( 'pan' )
+  --   file = love.filesystem.newFile( dir..'save.txt' )
+  --   file:open("r")
+  --   data = file:read()
+  --   file:close()
+  -- else
+  --
   -- end
-  -- -- Intialise the first iteration of the sequence
-  -- sequence()
 
 end
+
 
 player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
 cat = {active = 0}
@@ -114,8 +119,16 @@ function game:enter()
   canShoot = true
   canShootTimerMax = 0.1
   canShootTimer = canShootTimerMax
+
   bulletImg = love.graphics.newImage('img/b.png')
   bullets = {}
+
+  -- bullets.image = love.graphics.newImage(bulletImg)
+  -- anim = anim8.newGrid(20, 10, bullets.image:getWidth(), bullets.image:getHeight())
+  -- bullets.anim = {
+  --   start = anim8.newAnimation(anim('1-3', 1, ), 0.5),
+  -- }
+
 
   --test hc
   mouse = HC.circle(400,300,20)
