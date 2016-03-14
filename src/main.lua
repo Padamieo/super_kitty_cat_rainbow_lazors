@@ -52,6 +52,19 @@ function love.load()
   --
   -- end
 
+  highscores = {}
+
+  if not love.filesystem.exists("scores.lua") then
+    scores = love.filesystem.newFile("score.lua")
+    love.filesystem.write("scores.lua", total_score)
+  end
+
+  for lines in love.filesystem.lines("scores.lua") do
+    table.insert(highscores, lines)
+  end
+
+  total_score = tonumber(highscores[1])
+
 end
 
 
@@ -212,6 +225,7 @@ function game:update(dt)
   if (cat.body:getY() > h-(h/10)) then
     if score > total_score then
       total_score = score
+      love.filesystem.write("scores.lua", total_score)
     end
     return gamestate.switch(menu)
   end
