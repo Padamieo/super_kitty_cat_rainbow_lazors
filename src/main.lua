@@ -36,34 +36,19 @@ function love.load()
 
   circle = {size = 0}
 
-  -- dir = love.filesystem.getSaveDirectory()
-  -- print(dir)
-  -- -- isDir = love.filesystem.isDirectory( 'pan' )
-  -- -- print(isDir)
-  -- isFile = love.filesystem.isFile( 'save.txt' )
-  -- print(isFile)
-  -- if isFile == false then
-  --   -- success = love.filesystem.createDirectory( 'pan' )
-  --   file = love.filesystem.newFile( dir..'save.txt' )
-  --   file:open("r")
-  --   data = file:read()
-  --   file:close()
-  -- else
-  --
-  -- end
+  stored = {}
 
-  highscores = {}
+  --tt = os.time()
 
   if not love.filesystem.exists("scores.lua") then
     scores = love.filesystem.newFile("score.lua")
-    love.filesystem.write("scores.lua", total_score)
+    love.filesystem.write("scores.lua", total_score .. "\n" .. total_score)
   end
-
   for lines in love.filesystem.lines("scores.lua") do
-    table.insert(highscores, lines)
+    table.insert(stored, lines)
   end
 
-  total_score = tonumber(highscores[1])
+  total_score = tonumber(stored[1])
 
 end
 
@@ -117,8 +102,6 @@ function game:enter()
     start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05),
     loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
   }
-
-
 
 
   --enemies
@@ -502,7 +485,6 @@ function game:draw()
 --   love.graphics.print(text[#text - (i-1)], 10, i * 15)
 -- end
 
-
   love.graphics.setColor(255,255,255)
   mouse:draw('fill')
   love.graphics.setColor(100,100,255,100)
@@ -511,7 +493,8 @@ function game:draw()
   love.graphics.setColor(255,255,255)
   love.graphics.draw(psystem)
 
-  love.graphics.print(score, ww-100, hh-150)
+  love.graphics.setColor(255,255,255, 100)
+  love.graphics.print(score, 10, hh-30)
 
   if t < shakeDuration then
     local dx = love.math.random(-shakeMagnitude, shakeMagnitude)
