@@ -36,7 +36,8 @@ function love.load()
 
   circle = {size = 0}
 
-  stored = {}
+
+  data = {}
 
   --tt = os.time()
 
@@ -45,21 +46,24 @@ function love.load()
     love.filesystem.write("scores.lua", total_score .. "\n" .. total_score)
   end
   for lines in love.filesystem.lines("scores.lua") do
-    table.insert(stored, lines)
+    table.insert(data, lines)
   end
 
-  total_score = tonumber(stored[1])
+  total_score = tonumber(data[1])
 
 end
 
-
 player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
 cat = {active = 0}
+
 --following to go in game.lua but bellow for development
 game = {}
 
 -- Load some default values for our rectangle.
 function game:enter()
+
+
+
   --love.window.setMode(0,0,{resizable = true,vsync = false})
   first_move = 0
   score = 0
@@ -103,7 +107,6 @@ function game:enter()
     loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
   }
 
-
   --enemies
   createEnemyTimerMax = 1
   createEnemyTimer = createEnemyTimerMax
@@ -116,15 +119,15 @@ function game:enter()
   canShootTimerMax = 0.1
   canShootTimer = canShootTimerMax
 
-  bulletImg = love.graphics.newImage('img/b.png')
   bullets = {}
+  bullets.image = love.graphics.newImage('img/b.png')
 
+  -- bulletImg = 'img/b2.png'
   -- bullets.image = love.graphics.newImage(bulletImg)
-  -- anim = anim8.newGrid(20, 10, bullets.image:getWidth(), bullets.image:getHeight())
+  -- anim = anim8.newGrid(40, 20, bullets.image:getWidth(), bullets.image:getHeight())
   -- bullets.anim = {
-  --   start = anim8.newAnimation(anim('1-3', 1, ), 0.5),
+  --   a = anim8.newAnimation(anim('1-3', 1), 0.1)
   -- }
-
 
   --test hc
   mouse = HC.circle(400,300,20)
@@ -204,6 +207,9 @@ function game:update(dt)
   -- animation for fire
   rainbow.anim.loop:update(dt)
 
+  --will need this for enemy animation decided to drop for bullets as did not look right
+  --bullets.anim.a:update(dt)
+
   -- if below edge end game return to menu for now
   if (cat.body:getY() > h-(h/10)) then
     if score > total_score then
@@ -280,7 +286,7 @@ function game:update(dt)
         background_speed = 0
       end
 
-      vv = ture
+      vv = true
       if vv == true then
         enemy.y = enemy.y -( speed * dt )
       else
@@ -325,7 +331,7 @@ function game:update(dt)
 
   for i, enemy in ipairs(enemies) do
   	for j, bullet in ipairs(bullets) do
-  		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, bullet.x, bullet.y, bullet.img:getWidth()*scale, bullet.img:getHeight()*scale) then
+  		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, bullet.x, bullet.y, bullets.image:getWidth()*scale, bullets.image:getHeight()*scale) then
         psystem:moveTo( enemy.x, enemy.y )
         psystem:emit(32)
   			table.remove(bullets, j)
@@ -413,7 +419,7 @@ function love.mousereleased( x, y, button, istouch )
       local bulletDx = 800 * math.cos(angle)
       local bulletDy = 800 * math.sin(angle)
 
-      newBullet = { x = cat.body:getX(), y = cat.body:getY(), dx = bulletDx, dy = bulletDy, a = angle, img = bulletImg }
+      newBullet = { x = cat.body:getX(), y = cat.body:getY(), dx = bulletDx, dy = bulletDy, a = angle }
 
       table.insert(bullets, newBullet)
       canShoot = false
@@ -476,7 +482,8 @@ function game:draw()
 
   -- draw bullets
   for i, bullet in ipairs(bullets) do
-    love.graphics.draw(bullet.img, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
+    love.graphics.draw(bullets.image, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
+    --bullets.anim.a:draw(bullet.img, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
   end
 
 -- HC test
