@@ -162,6 +162,25 @@ function game:enter()
   bg2.height = bg2.img:getHeight()
 
   background_speed = 200
+
+  --sound setup
+
+  s1 = love.audio.newSource("sound/hh.wav", "static")
+  s2 = love.audio.newSource("sound/hl.wav", "static")
+
+  s3 = love.audio.newSource("sound/hm.wav", "static")
+  s4 = love.audio.newSource("sound/lh.wav", "static")
+
+  s5 = love.audio.newSource("sound/ll.wav", "static")
+  s6 = love.audio.newSource("sound/lm.wav", "static")
+
+  s7 = love.audio.newSource("sound/mh.wav", "static")
+  s8 = love.audio.newSource("sound/ml.wav", "static")
+
+  firesound = {s1,s2,s3,s4,s5,s6,s7,s8}
+  fireset = 1
+  --src1:setPitch(0.5) -- one octave lower
+
   --game enter end
 end
 
@@ -424,6 +443,13 @@ function love.mousereleased( x, y, button, istouch )
       table.insert(bullets, newBullet)
       canShoot = false
       canShootTimer = canShootTimerMax
+
+      if fireset == 8 then
+        fireset = 1
+      else
+        fireset = fireset + 1
+      end
+      firesound[fireset]:play()
     end
   --end
 
