@@ -25,7 +25,7 @@ HC = require 'resources.HC'
 local text = {}
 
 function love.load()
-  --shader = love.graphics.newShader("v.glsl")
+  shader = love.graphics.newShader("v.glsl")
   --love.window.setMode(0,0,{resizable = true,vsync = false}) -- apprently will fullscreen android
 
   scale = love.window.getPixelScale( )
@@ -465,7 +465,7 @@ end
 function game:draw()
 
   -- if player.lazers == true then
-  --   love.graphics.setShader(shader)
+  love.graphics.setShader(shader)
   -- else
   --   love.graphics.setShader()
   -- end
@@ -499,7 +499,7 @@ function game:draw()
 
   if cat.dir == 'fire' then
     cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
-    love.graphics.setColor(100,100,255,90)
+    love.graphics.setColor(0,255,0,90)
     rainbow.anim.loop:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
     love.graphics.setColor(255,255,255)
   else
@@ -541,6 +541,8 @@ function game:draw()
   end
 
   love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+
+  love.graphics.setShader()
 
   --end of game draw
 end
