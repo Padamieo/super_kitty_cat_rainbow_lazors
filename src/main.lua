@@ -30,6 +30,7 @@ function love.load()
 
   scale = love.window.getPixelScale( )
   total_score = 0
+  lives = 9
 
   gamestate.registerEvents()
   gamestate.switch(menu)
@@ -43,13 +44,14 @@ function love.load()
 
   if not love.filesystem.exists("scores.lua") then
     scores = love.filesystem.newFile("score.lua")
-    love.filesystem.write("scores.lua", total_score .. "\n" .. total_score)
+    love.filesystem.write("scores.lua", total_score .. "\n" .. lives)
   end
   for lines in love.filesystem.lines("scores.lua") do
     table.insert(data, lines)
   end
 
   total_score = tonumber(data[1])
+  lives = tonumber(data[2])
 
 end
 
@@ -231,10 +233,14 @@ function game:update(dt)
 
   -- if below edge end game return to menu for now
   if (cat.body:getY() > h-(h/10)) then
+    lives = lives - 1
     if score > total_score then
       total_score = score
-      love.filesystem.write("scores.lua", total_score)
+      love.filesystem.write("scores.lua", total_score .. "\n" .. lives)
+    else
+      love.filesystem.write("scores.lua", total_score .. "\n" .. lives)
     end
+
     return gamestate.switch(menu)
   end
 
@@ -311,7 +317,6 @@ function game:update(dt)
       else
         enemy.y = enemy.y -( speed * dt )
       end
-
 
       if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
         table.remove(enemies, i)

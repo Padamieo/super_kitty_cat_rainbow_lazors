@@ -26,8 +26,10 @@ function menu:update(dt)
   end
 
   suit.layout:reset(ww/4,100*scale)
+
   suit.Input(input, suit.layout:row(ww/2,60*scale))
   suit.Label("Hello, "..input.text, {align = "left"}, suit.layout:row())
+
   suit.layout:row()
 
   if suit.Button("Start", suit.layout:row()).hit then
@@ -40,8 +42,14 @@ function menu:update(dt)
     love.event.quit()
   end
 
-  if start == 1 then
-    gamestate.switch(game)
+  if lives >= 0 then
+    if start == 1 then
+      gamestate.switch(game)
+    end
+  else
+    if start == 1 then
+      --pop up to say out of lives
+    end
   end
 
 end
@@ -52,7 +60,9 @@ function menu:draw()
     suit.draw()
   --cam:detach()
 
-love.graphics.print(total_score, ww-100, hh-150)
+love.graphics.print(total_score, ww-(ww/3), hh-150)
+love.graphics.print(lives, ww-((ww/3)*2), hh-150)
+
 end
 
 function menu:keyreleased(key, code)
