@@ -98,6 +98,7 @@ function game:enter()
   cat.body:setMass(100)
   cat.b = HC.circle(600,600,70)
 
+
   rainbow = {}
   rainbow_image = 'img/rainbow_r.png'
   rainbow.image = love.graphics.newImage(rainbow_image)
@@ -108,6 +109,7 @@ function game:enter()
     start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05),
     loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
   }
+
 
   --enemies
   createEnemyTimerMax = 1
@@ -170,16 +172,7 @@ function game:enter()
   s1 = love.audio.newSource("sound/hh.wav", "static")
   s2 = love.audio.newSource("sound/hl.wav", "static")
 
-  s3 = love.audio.newSource("sound/hm.wav", "static")
-  s4 = love.audio.newSource("sound/lh.wav", "static")
-
-  s5 = love.audio.newSource("sound/ll.wav", "static")
-  s6 = love.audio.newSource("sound/lm.wav", "static")
-
-  s7 = love.audio.newSource("sound/mh.wav", "static")
-  s8 = love.audio.newSource("sound/ml.wav", "static")
-
-  firesound = {s1,s2,s3,s4,s5,s6,s7,s8}
+  firesound = {s1,s2}
   fireset = 1
   --src1:setPitch(0.5) -- one octave lower
 

@@ -40,7 +40,8 @@ vec4 effect(vec4 color, sampler2D texture, vec2 texCoords, vec2 screenCoords) {
 	// 	u_opacity
 	// );
 
-	if(screenCoords.x > (love_ScreenSize.x/2)){
+	//if(screenCoords.x > (love_ScreenSize.x/2)){
+	if(texCoords.x > 0.5){
     //return vec4(1.0,0.0,0.0,1.0);//red
 		vec4 pixel = Texel(texture, texCoords );//This is the current pixel color
   	return pixel * color;
@@ -53,20 +54,33 @@ vec4 effect(vec4 color, sampler2D texture, vec2 texCoords, vec2 screenCoords) {
 	  // pixel.g = average;
 	  // pixel.b = average;
 
-		if(pixel.g < 250){
-			number average = (pixel.r+pixel.b+pixel.g)/3.0;
-			pixel.r = average;
-			pixel.g = average;
-			pixel.b = average;
-		}else{
-			number average = (pixel.r+pixel.b+pixel.g)/3.0;
-			pixel.r = average;
-			pixel.g = average;
-			pixel.b = average;
+		// if(pixel.g < 250){
+		// 	if(pixel.r < 250){
+		// 		if(pixel.b < 250){
+		// 			number average = (pixel.r+pixel.b+pixel.g)/3.0;
+		// 			pixel.r = 255;
+		// 			pixel.g = average;
+		// 			pixel.b = average;
+		// 		}
+		// 	}
+		// }
+
+		// if(n == 1){
+		// 	number average = (pixel.r+pixel.b+pixel.g)/3.0;
+		// 	pixel.r = average;
+		// 	pixel.g = average;
+		// 	pixel.b = average;
+		// }
+
+		if( pixel.r > 254 && pixel.r > 254 && pixel.r > 254){
+			pixel.r = 0;
+			pixel.g = 0;
+			pixel.b = 0;
 		}
 
 
-		
+
+
 	  return vec4(vec3(pixel.r, pixel.g, pixel.b), pixel.a);
 
     //return vec4(0.0,0.0,1.0,1.0);//blue
