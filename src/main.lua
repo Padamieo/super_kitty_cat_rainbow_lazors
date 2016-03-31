@@ -63,7 +63,7 @@ game = {}
 
 -- Load some default values for our rectangle.
 function game:enter()
-
+  ff = true;
 
 
   --love.window.setMode(0,0,{resizable = true,vsync = false})
@@ -106,10 +106,19 @@ function game:enter()
   factor = ww/200
   anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
   rainbow.anim = {
-    start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05),
+    start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05, boop),
     loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
   }
-
+  
+  -- ff this does not work
+  boop = function(v)
+    print("called")
+    if ff == true then
+      ff = false
+    else
+      ff = true
+    end
+  end
 
   --enemies
   createEnemyTimerMax = 1
@@ -219,6 +228,7 @@ function game:update(dt)
   end
 
   -- animation for fire
+  rainbow.anim.start:update(dt)
   rainbow.anim.loop:update(dt)
 
   --will need this for enemy animation decided to drop for bullets as did not look right
@@ -442,7 +452,7 @@ function love.mousereleased( x, y, button, istouch )
       canShoot = false
       canShootTimer = canShootTimerMax
 
-      if fireset == 8 then
+      if fireset == 2 then
         fireset = 1
       else
         fireset = fireset + 1
@@ -493,7 +503,11 @@ function game:draw()
   if cat.dir == 'fire' then
     cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
     love.graphics.setColor(0,255,0,90)
-    rainbow.anim.loop:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
+    if ff == true then
+      rainbow.anim.start:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
+    else
+      rainbow.anim.loop:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
+    end
     love.graphics.setColor(255,255,255)
   else
     cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
