@@ -19,7 +19,7 @@ function rainbow.create()
 
   rainbow.loop = anim8.newAnimation(rainbow_grid('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
 
-  rainbow.start = anim8.newAnimation(rainbow_grid2('9-10', 2, '1-10', 1, '1-8', 2), 0.05, rainbow.destroy)
+  rainbow.start = anim8.newAnimation(rainbow_grid2('1-10', 1, '1-8', 2), 0.05, rainbow.destroy)
   --anim8.newAnimation(enemy_grid("1-6", 2), 0.2, rainbow.destroy)
 
   rainbow.sprite = rainbow.start_sprite
@@ -29,17 +29,19 @@ function rainbow.create()
 end
 
 rainbow.destroy = function ()
-  if cat.active == 1 then
-
+  --if cat.active == 1 then
     print('noticeme')
     print(rainbow.store)
     rainbow.store = rainbow.store+1
-    if rainbow.store > 1 then
+
+    if rainbow.store == 1 then
       rainbow.sprite = rainbow.loop_sprite
       rainbow.anim = rainbow.loop
+      rainbow.anim:gotoFrame(1)
     end
 
-  end
+
+  --end
 end
 
 function rainbow.draw()

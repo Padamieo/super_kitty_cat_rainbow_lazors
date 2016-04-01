@@ -216,6 +216,9 @@ function game:update(dt)
   if cat.dir == 'fire' then
     --startShake(1, 1)
     cat.anim.rainbow:update(dt)
+    --rainbow.anim:gotoFrame(8)
+
+
   else
     cat.anim.wait:update(dt)
   end
@@ -224,8 +227,21 @@ function game:update(dt)
   -- rainbow.anim.start:update(dt)
   -- rainbow.anim.loop:update(dt)
 
-    -- Update player
-    rainbow.update(dt)
+    -- Update rainbow
+    if cat.dir == 'fire' then
+      if rainbow.store == 0 then
+        rainbow.sprite = rainbow.start_sprite
+        rainbow.anim = rainbow.start
+      end
+      rainbow.anim:resume()
+      rainbow.update(dt)
+    else
+      rainbow.sprite = rainbow.start_sprite
+      rainbow.anim = rainbow.start
+      rainbow.anim:pauseAtStart()
+      rainbow.store = 0
+    end
+
 
   --will need this for enemy animation decided to drop for bullets as did not look right
   --bullets.anim.a:update(dt)
