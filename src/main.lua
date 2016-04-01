@@ -13,11 +13,12 @@ lick.reset = true
 
 --define game states and functions to be included
 menu = require "menu"
-
---game = require "game"
+--game = require "game" -- currently bellow
 
 anim8 = require 'resources.anim8'
 flux = require 'resources.flux'
+
+require 'rainbow'
 
 require 'general' -- not sure this helps with speed and performance
 
@@ -25,7 +26,7 @@ HC = require 'resources.HC'
 local text = {}
 
 function love.load()
-  shader = love.graphics.newShader("v.glsl")
+  --shader = love.graphics.newShader("v.glsl")
   --love.window.setMode(0,0,{resizable = true,vsync = false}) -- apprently will fullscreen android
 
   scale = love.window.getPixelScale( )
@@ -36,7 +37,6 @@ function love.load()
   gamestate.switch(menu)
 
   circle = {size = 0}
-
 
   data = {}
 
@@ -63,8 +63,6 @@ game = {}
 
 -- Load some default values for our rectangle.
 function game:enter()
-  ff = true;
-
 
   --love.window.setMode(0,0,{resizable = true,vsync = false})
   first_move = 0
@@ -99,26 +97,21 @@ function game:enter()
   cat.b = HC.circle(600,600,70)
 
 
-  rainbow = {}
-  rainbow_image = 'img/rainbow_r.png'
-  rainbow.image = love.graphics.newImage(rainbow_image)
+
+  -- rainbow = {}
+  -- rainbow_image = 'img/rainbow_r.png'
+  -- rainbow.image = love.graphics.newImage(rainbow_image)
 
   factor = ww/200
-  anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
-  rainbow.anim = {
-    start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05, boop),
-    loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
-  }
-  
-  -- ff this does not work
-  boop = function(v)
-    print("called")
-    if ff == true then
-      ff = false
-    else
-      ff = true
-    end
-  end
+
+  -- anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
+  -- rainbow.anim = {
+  --   start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05),
+  --   loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
+  -- }
+  rainbow.create()
+
+
 
   --enemies
   createEnemyTimerMax = 1
@@ -228,8 +221,11 @@ function game:update(dt)
   end
 
   -- animation for fire
-  rainbow.anim.start:update(dt)
-  rainbow.anim.loop:update(dt)
+  -- rainbow.anim.start:update(dt)
+  -- rainbow.anim.loop:update(dt)
+
+    -- Update player
+    rainbow.update(dt)
 
   --will need this for enemy animation decided to drop for bullets as did not look right
   --bullets.anim.a:update(dt)
@@ -347,6 +343,7 @@ function game:update(dt)
 
   cat.b:moveTo(cat.body:getX(), cat.body:getY())
   --test hc
+
   mouse:moveTo(love.mouse.getPosition())
 
   -- for shape, delta in pairs(HC.collisions(mouse)) do
@@ -394,11 +391,9 @@ function game:update(dt)
   --update end
 end
 
-
 function love.touchpressed( id, x, y, pressure )
   print("touchpressed")
 end
-
 
 function love.mousepressed(x, y, button, istouch)
   circle.size = 0
@@ -421,6 +416,7 @@ function love.mousepressed(x, y, button, istouch)
   end
 
 end
+-- end of mousepressed
 
 
 function love.mousereleased( x, y, button, istouch )
@@ -462,13 +458,15 @@ function love.mousereleased( x, y, button, istouch )
   --end
 
 end
+-- end of mousereleased
 
 
--- Draw a coloured rectangle.
+
+-- game draw.
 function game:draw()
 
   -- if player.lazers == true then
-  love.graphics.setShader(shader)
+  --love.graphics.setShader(shader)
   -- else
   --   love.graphics.setShader()
   -- end
@@ -502,16 +500,17 @@ function game:draw()
 
   if cat.dir == 'fire' then
     cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
+
     love.graphics.setColor(0,255,0,90)
-    if ff == true then
-      rainbow.anim.start:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
-    else
-      rainbow.anim.loop:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
-    end
+    --rainbow.anim.loop:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
+    rainbow.draw()
+
     love.graphics.setColor(255,255,255)
   else
     cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
   end
+
+
 
   -- draw enemies
   for i, enemy in ipairs(enemies) do
@@ -549,9 +548,9 @@ function game:draw()
 
   love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
 
-  love.graphics.setShader()
+  --love.graphics.setShader()
 
-  --end of game draw
 end
+-- end of game draw
 
 return game
