@@ -18,8 +18,7 @@ menu = require "menu"
 anim8 = require 'resources.anim8'
 flux = require 'resources.flux'
 
-require 'rainbow'
-
+require 'rainbow' -- brings the fire animation object
 require 'general' -- not sure this helps with speed and performance
 
 HC = require 'resources.HC'
@@ -96,22 +95,8 @@ function game:enter()
   cat.body:setMass(100)
   cat.b = HC.circle(600,600,70)
 
-
-
-  -- rainbow = {}
-  -- rainbow_image = 'img/rainbow_r.png'
-  -- rainbow.image = love.graphics.newImage(rainbow_image)
-
-  factor = ww/200
-
-  -- anim = anim8.newGrid(200, 500, rainbow.image:getWidth(), rainbow.image:getHeight())
-  -- rainbow.anim = {
-  --   start = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05),
-  --   loop = anim8.newAnimation(anim('1-10', 1, '1-10', 2, '1-4', 3), 0.05)
-  -- }
+  -- create the rainbow fire object
   rainbow.create()
-
-
 
   --enemies
   createEnemyTimerMax = 1
@@ -127,13 +112,6 @@ function game:enter()
 
   bullets = {}
   bullets.image = love.graphics.newImage('img/b.png')
-
-  -- bulletImg = 'img/b2.png'
-  -- bullets.image = love.graphics.newImage(bulletImg)
-  -- anim = anim8.newGrid(40, 20, bullets.image:getWidth(), bullets.image:getHeight())
-  -- bullets.anim = {
-  --   a = anim8.newAnimation(anim('1-3', 1), 0.1)
-  -- }
 
   --test hc
   mouse = HC.circle(400,300,20)
@@ -216,35 +194,12 @@ function game:update(dt)
   if cat.dir == 'fire' then
     --startShake(1, 1)
     cat.anim.rainbow:update(dt)
-    --rainbow.anim:gotoFrame(8)
-
-
   else
     cat.anim.wait:update(dt)
   end
 
-  -- animation for fire
-  -- rainbow.anim.start:update(dt)
-  -- rainbow.anim.loop:update(dt)
-
-    -- Update rainbow
-    if cat.dir == 'fire' then
-      if rainbow.store == 0 then
-        rainbow.sprite = rainbow.start_sprite
-        rainbow.anim = rainbow.start
-      end
-      rainbow.anim:resume()
-      rainbow.update(dt)
-    else
-      rainbow.sprite = rainbow.start_sprite
-      rainbow.anim = rainbow.start
-      rainbow.anim:pauseAtStart()
-      rainbow.store = 0
-    end
-
-
-  --will need this for enemy animation decided to drop for bullets as did not look right
-  --bullets.anim.a:update(dt)
+  -- animation for rainbow fire
+  rainbow.update(dt)
 
   -- if below edge end game return to menu for now
   if (cat.body:getY() > h-(h/10)) then
@@ -518,15 +473,12 @@ function game:draw()
     cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
 
     love.graphics.setColor(0,255,0,90)
-    --rainbow.anim.loop:draw(rainbow.image, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
     rainbow.draw()
 
     love.graphics.setColor(255,255,255)
   else
     cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
   end
-
-
 
   -- draw enemies
   for i, enemy in ipairs(enemies) do
