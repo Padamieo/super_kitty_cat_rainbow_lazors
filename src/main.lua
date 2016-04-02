@@ -127,7 +127,7 @@ function game:enter()
   psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
   --psystem:setEmissionRate(20)
   psystem:setSizeVariation(0.5)
-  psystem:setLinearAcceleration(-600, -600, 600, 600) -- Random movement in all directions.
+  psystem:setLinearAcceleration(-400, -700, 400, 700) -- Random movement in all directions.
   psystem:setSpin(10)
   psystem:setSpinVariation(2, 6)
   psystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
@@ -157,6 +157,7 @@ function game:enter()
   --src1:setPitch(0.5) -- one octave lower
 
   --game enter end
+  iv = 0
 end
 
 
@@ -469,13 +470,10 @@ function game:draw()
 
   --love.graphics.setColor(250, 250, 250)
 
+  rainbow.draw()
+
   if cat.dir == 'fire' then
     cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
-
-    love.graphics.setColor(0,255,0,90)
-    rainbow.draw()
-
-    love.graphics.setColor(255,255,255)
   else
     cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
   end
@@ -488,7 +486,6 @@ function game:draw()
   -- draw bullets
   for i, bullet in ipairs(bullets) do
     love.graphics.draw(bullets.image, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
-    --bullets.anim.a:draw(bullet.img, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
   end
 
 -- HC test
@@ -508,14 +505,16 @@ function game:draw()
   love.graphics.setColor(255,255,255, 100)
   love.graphics.print(score, 10, hh-30)
 
+  -- screen shake bit
   if t < shakeDuration then
     local dx = love.math.random(-shakeMagnitude, shakeMagnitude)
     local dy = love.math.random(-shakeMagnitude, shakeMagnitude)
     love.graphics.translate(dx, dy)
+  else
+    -- need way to reset the traslate that happend, screen shake mess
   end
 
   love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
-
   --love.graphics.setShader()
 
 end
