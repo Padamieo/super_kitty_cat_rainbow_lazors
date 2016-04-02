@@ -23,8 +23,7 @@ module.exports = function(grunt) {
 						'LICK/lick.lua',
 						'hump/camera.lua',
 						'hump/gamestate.lua',
-						'anim8/anim8.lua',
-						'flux/flux.lua',
+						'anim8/anim8.lua'
 					],
 					dest: 'build/resources/',
 					nonull: false,

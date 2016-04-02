@@ -16,7 +16,6 @@ menu = require "menu"
 --game = require "game" -- currently bellow
 
 anim8 = require 'resources.anim8'
-flux = require 'resources.flux'
 
 require 'rainbow' -- brings the fire animation object
 require 'general' -- not sure this helps with speed and performance
@@ -35,11 +34,11 @@ function love.load()
   gamestate.registerEvents()
   gamestate.switch(menu)
 
-  circle = {size = 0}
+  circle = {size = 0, max = 80, duration = 0.8}
 
   data = {}
 
-  --tt = os.time()
+  os_time = os.time()
 
   if not love.filesystem.exists("scores.lua") then
     scores = love.filesystem.newFile("score.lua")
@@ -51,10 +50,20 @@ function love.load()
 
   total_score = tonumber(data[1])
   lives = tonumber(data[2])
+  death_timestap = tonumber(data[3])
+
+  if lives <= 8 then
+    ts = death_timestap + 30
+    if os_time >= ts then
+      death_timestap = death_timestap + 30
+      lives = lives + 1
+      love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. death_timestap)
+    end
+  end
 
 end
 
-player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0}
+player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0, starttime}
 cat = {active = 0}
 
 --following to go in game.lua but bellow for development
@@ -92,8 +101,7 @@ function game:enter()
   cat.shape = love.physics.newRectangleShape(characters["default"].height*scale, characters["default"].width*scale)
   cat.fixture = love.physics.newFixture(cat.body, cat.shape)
   cat.fixture:setRestitution(0.9) -- bounce
-  cat.body:setMass(100)
-  cat.b = HC.circle(600,600,70)
+  cat.body:setMass(100)--test
 
   -- create the rainbow fire object
   rainbow.create()
@@ -112,14 +120,6 @@ function game:enter()
 
   bullets = {}
   bullets.image = love.graphics.newImage('img/b.png')
-
-  --test hc
-  mouse = HC.circle(400,300,20)
-  mouse:moveTo(love.mouse.getPosition())
-
-  function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
-    return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
-  end
 
   -- need multipl of this particle system for on demand explotions
   local imgg = love.graphics.newImage('img/b.png')
@@ -148,17 +148,14 @@ function game:enter()
   background_speed = 200
 
   --sound setup
-
   s1 = love.audio.newSource("sound/hh.wav", "static")
   s2 = love.audio.newSource("sound/hl.wav", "static")
 
   firesound = {s1,s2}
   fireset = 1
   --src1:setPitch(0.5) -- one octave lower
-
-  --game enter end
-  iv = 0
 end
+-- game enter end
 
 
 function game:update(dt)
@@ -207,9 +204,13 @@ function game:update(dt)
     lives = lives - 1
     if score > total_score then
       total_score = score
-      love.filesystem.write("scores.lua", total_score .. "\n" .. lives)
+    end
+
+    if lives == 8 then
+      os_time = os.time()
+      love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. os_time)
     else
-      love.filesystem.write("scores.lua", total_score .. "\n" .. lives)
+      love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. death_timestap)
     end
 
     return gamestate.switch(menu)
@@ -219,9 +220,17 @@ function game:update(dt)
     player.x = love.mouse.getX( )
     player.y = love.mouse.getY( )
 
-    --do not like this timer seems off
-    flux.to(circle, 0.3, {size = 80*scale }):ease("linear")
+    -- controls cirlce size animation
+    if player.endtime ~= nil then
+      if player.start ~= nil then
+        change_in_time = love.timer.getTime( ) - player.start
+        if circle.size <= circle.max then
+          circle.size = change_in_time * (circle.max / circle.duration)
+        end
+      end
+    end
 
+    -- checks if end time has passed
     if player.endtime ~= nil then
       time = love.timer.getTime( )
       if time > player.endtime then
@@ -287,20 +296,6 @@ function game:update(dt)
     end
   end
 
-  flux.update(dt)
-
-  cat.b:moveTo(cat.body:getX(), cat.body:getY())
-  --test hc
-
-  mouse:moveTo(love.mouse.getPosition())
-
-  -- for shape, delta in pairs(HC.collisions(mouse)) do
-  --   text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)", delta.x, delta.y)
-  -- end
-  -- while #text > 40 do
-  --   table.remove(text, 1)
-  -- end
-
   for i, enemy in ipairs(enemies) do
   	for j, bullet in ipairs(bullets) do
   		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, bullet.x, bullet.y, bullets.image:getWidth()*scale, bullets.image:getHeight()*scale) then
@@ -345,6 +340,7 @@ end
 
 function love.mousepressed(x, y, button, istouch)
   circle.size = 0
+
   if cat.active == 0 then
     cat.active = 1
     player.touch = 1
@@ -371,13 +367,6 @@ function love.mousereleased( x, y, button, istouch )
   player.touch = 0
   player.lazers = false
   circle.size = 0
-
-  -- if player.endtime ~= nil then
-  --   time = love.timer.getTime( )
-  --   if time < player.endtime then
-  --     -- spawn a fireball example
-  --   end
-  -- end
 
   --if player.endtime ~= nil then
     time = love.timer.getTime( )
@@ -428,23 +417,15 @@ function game:draw()
     myColor = {255, 255, 255, 100}
     love.graphics.setColor(myColor)
 
-    love.graphics.circle( "line", player.x, player.y, 80*scale, 25 )
 
-    -- tween fluc maybe : https://love2d.org/forums/viewtopic.php?t=77904&p=168300
-    love.graphics.circle( "fill", player.x, player.y, circle.size, 80*scale, 25 )
+    love.graphics.circle( "line", player.x, player.y, circle.max*scale, 25 )
+    love.graphics.circle( "fill", player.x, player.y, circle.size, circle.max*scale, 25 )
 
     --love.graphics.line( player.x, player.y, cat.body:getX(), cat.body:getY() )
 
   end
 
   love.graphics.setColor(250, 250, 250)
-
-  --love.graphics.setColor(0, 88, 200)
-  -- love.graphics.rectangle('fill', x, y, w, h)
-  -- love.graphics.rectangle('fill', 80, 80, w, h)
-  -- love.graphics.rectangle('fill', 250, 250, w, h)
-
-  --love.graphics.setColor(250, 250, 250)
 
   rainbow.draw()
 
@@ -463,17 +444,6 @@ function game:draw()
   for i, bullet in ipairs(bullets) do
     love.graphics.draw(bullets.image, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
   end
-
--- HC test
--- for i = 1,#text do
---   love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
---   love.graphics.print(text[#text - (i-1)], 10, i * 15)
--- end
-
-  love.graphics.setColor(255,255,255)
-  mouse:draw('fill')
-  love.graphics.setColor(100,100,255,100)
-  cat.b:draw('fill')
 
   love.graphics.setColor(255,255,255)
   love.graphics.draw(psystem)

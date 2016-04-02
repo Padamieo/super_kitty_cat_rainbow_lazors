@@ -28,8 +28,11 @@ function math.round(n, deci)
   return math.floor(n*deci+.5)/deci
 end
 
-
 t, shakeDuration, shakeMagnitude = 0, -1, 0
 function startShake(duration, magnitude)
     t, shakeDuration, shakeMagnitude = 0, duration or 1, magnitude or 5
+end
+
+function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
+  return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
 end
