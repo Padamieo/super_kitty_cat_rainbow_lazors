@@ -50,16 +50,18 @@ function menu:update(dt)
 
   suit.layout:row()
 
-  if lives >= 0 then
+  if lives >= 1 then
     if start == 1 then
       gamestate.switch(game)
     end
   else
     if start == 1 then
       --pop up to say out of lives
-      gamestate.switch(game)
     end
   end
+
+  -- need to only call this once every 20 minutes or something
+  more_lives()
 
 end
 
@@ -69,13 +71,6 @@ function menu:draw()
   love.graphics.print(total_score, ww-(ww/3), hh-150)
   love.graphics.print(lives, ww-((ww/3)*2), hh-150)
 
-end
-
-function menu:keyreleased(key, code)
-
-    if key == 'g' then
-        gamestate.switch(game)
-    end
 end
 
 return menu

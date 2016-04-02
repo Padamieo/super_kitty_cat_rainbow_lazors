@@ -59,16 +59,9 @@ function EnemyClass:create()
   end
  end
 
- -- Enemy animation
- -- Moving - set grid and frames from 1 to 6 in 1st row with
- -- playing speed 0.2
+
  self.anm_walk = anim8.newAnimation(enemy_grid("1-6", 1), 0.2)
-
- -- Enemy death - set grid and frames from 1 to 6 in 2nd row with playing
- -- speed 0.2. On animation playing end will be executed self.destroy()
  self.anm_death = anim8.newAnimation(enemy_grid("1-6", 2), 0.2, self.destroy)
-
- -- Set moving as default animation
  self.anm = self.anm_walk
 end
 

@@ -38,12 +38,11 @@ function love.load()
 
   data = {}
 
-  os_time = os.time()
-
   if not love.filesystem.exists("scores.lua") then
     scores = love.filesystem.newFile("score.lua")
     love.filesystem.write("scores.lua", total_score .. "\n" .. lives)
   end
+
   for lines in love.filesystem.lines("scores.lua") do
     table.insert(data, lines)
   end
@@ -52,15 +51,25 @@ function love.load()
   lives = tonumber(data[2])
   death_timestap = tonumber(data[3])
 
+  more_lives()
+
+end
+
+function more_lives()
+  local os_time = os.time()
+  --ts = 0
+
+  -- nice_seconds = os_time - death_timestap
+  -- print(nice_seconds)
+
   if lives <= 8 then
-    ts = death_timestap + 30
+    local ts = death_timestap + 30
     if os_time >= ts then
       death_timestap = death_timestap + 30
       lives = lives + 1
       love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. death_timestap)
     end
   end
-
 end
 
 player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0, starttime}
@@ -207,8 +216,8 @@ function game:update(dt)
     end
 
     if lives == 8 then
-      os_time = os.time()
-      love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. os_time)
+      death_timestap = os.time()
+      love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. death_timestap)
     else
       love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. death_timestap)
     end
