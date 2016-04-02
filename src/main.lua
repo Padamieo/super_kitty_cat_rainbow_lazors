@@ -254,25 +254,6 @@ function game:update(dt)
 
 
     for i, enemy in ipairs(enemies) do
-      -- enemy.y = enemy.y - (10 * dt)
-      -- halfpost = love.graphics.getWidth()/2
-      --
-      -- vv = enemy.x + dt
-      -- enemy.x = math.sin(vv) * enemy.start_x
-      --
-      -- if i == 1 then
-      --   print(enemy.x)
-      -- end
-      --
-      -- if enemy.x < love.graphics.getWidth() then
-      --   --enemy.x = 100 * math.sin(dt*math.pi)
-      --   if i == 1 then
-      --     -- print(enemy.x)
-      --   end
-      --
-      -- end
-   -- enemy.x < 0+love.graphics.getWidth()/10 then
-      -- flux.to(enemy, 0.3, {size = 50 }):ease("linear")
 
       if player.lazers == true then
         speed = 15
@@ -282,12 +263,7 @@ function game:update(dt)
         background_speed = 0
       end
 
-      vv = true
-      if vv == true then
-        enemy.y = enemy.y -( speed * dt )
-      else
-        enemy.y = enemy.y -( speed * dt )
-      end
+      enemy.y = enemy.y -( speed * dt )
 
       if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
         table.remove(enemies, i)
