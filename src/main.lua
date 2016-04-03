@@ -20,6 +20,8 @@ anim8 = require 'resources.anim8'
 require 'rainbow' -- brings the fire animation object
 require 'general' -- not sure this helps with speed and performance
 
+require 'enemy'
+
 HC = require 'resources.HC'
 local text = {}
 
@@ -57,12 +59,12 @@ end
 
 function more_lives()
   local os_time = os.time()
-  --ts = 0
-
-  -- nice_seconds = os_time - death_timestap
-  -- print(nice_seconds)
 
   if lives <= 8 then
+
+    nice_seconds = os_time - (death_timestap + 30)
+    print(nice_seconds)
+
     local ts = death_timestap + 30
     if os_time >= ts then
       death_timestap = death_timestap + 30
@@ -81,7 +83,8 @@ game = {}
 -- Load some default values for our rectangle.
 function game:enter()
 
-  --love.window.setMode(0,0,{resizable = true,vsync = false})
+  love.window.setMode(400,700,{vsync = false})
+
   first_move = 0
   score = 0
 
@@ -116,11 +119,7 @@ function game:enter()
   rainbow.create()
 
   --enemies
-  createEnemyTimerMax = 1
-  createEnemyTimer = createEnemyTimerMax
-  enemyImg = love.graphics.newImage('img/nme.png')
-  enemy_limit = 10
-  enemies = {}
+  all_enemies.create()
 
   --bullets
   canShoot = true
@@ -133,7 +132,7 @@ function game:enter()
   -- need multipl of this particle system for on demand explotions
   local imgg = love.graphics.newImage('img/b.png')
   psystem = love.graphics.newParticleSystem(imgg, 32)
-  psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
+  psystem:setParticleLifetime(1, 3) -- Particles live at least 2s and at most 5s.
   --psystem:setEmissionRate(20)
   psystem:setSizeVariation(0.5)
   psystem:setLinearAcceleration(-400, -700, 400, 700) -- Random movement in all directions.
@@ -189,7 +188,7 @@ function game:update(dt)
 
     offset = cat.body:getY()-(h/8)
     cat.body:setY(cat.body:getY() - (offset*1*dt))
-    --cat.body:setLinearVelocity(0, offset*-2)
+    --cat.body:setLinearVelocity(0,(offset*1*dt))
     cat.body:setLinearVelocity(0, 1)
     cat.dir = 'fire'
 
@@ -257,37 +256,7 @@ function game:update(dt)
   end
 
   --enemey elements
-  if cat.active == 1 then
-    createEnemyTimer = createEnemyTimer - (1 * dt)
-    if createEnemyTimer < 0 then
-      if table.getn(enemies) < enemy_limit then
-        createEnemyTimer = createEnemyTimerMax
-        randomNumber = math.random(10, love.graphics.getWidth() - 10)
-
-        newEnemy = { x = randomNumber, y = h, start_x = randomNumber, alive = true, img = enemyImg }
-
-        table.insert(enemies, newEnemy)
-      end
-    end
-
-
-    for i, enemy in ipairs(enemies) do
-
-      if player.lazers == true then
-        speed = 15
-        background_speed = 200
-      else
-        speed = 70
-        background_speed = 0
-      end
-
-      enemy.y = enemy.y -( speed * dt )
-
-      if enemy.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
-        table.remove(enemies, i)
-      end
-    end
-  end
+  all_enemies.update(dt)
 
   --bullet elements
   canShootTimer = canShootTimer - (0.3 * dt)
@@ -305,23 +274,17 @@ function game:update(dt)
     end
   end
 
-  for i, enemy in ipairs(enemies) do
-  	for j, bullet in ipairs(bullets) do
-  		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, bullet.x, bullet.y, bullets.image:getWidth()*scale, bullets.image:getHeight()*scale) then
-        psystem:moveTo( enemy.x, enemy.y )
-        psystem:emit(32)
-  			table.remove(bullets, j)
-  			table.remove(enemies, i)
-  			score = score + 1
-  		end
-  	end
-    --
-  	-- if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), player.x, player.y, player.img:getWidth(), player.img:getHeight())
-  	-- and isAlive then
-  	-- 	table.remove(enemies, i)
-  	-- 	isAlive = false
-  	-- end
-  end
+  -- for i, enemy in ipairs(enemies) do
+  -- 	for j, bullet in ipairs(bullets) do
+  -- 		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, bullet.x, bullet.y, bullets.image:getWidth()*scale, bullets.image:getHeight()*scale) then
+  --       psystem:moveTo( enemy.x, enemy.y )
+  --       psystem:emit(32)
+  -- 			table.remove(bullets, j)
+  -- 			table.remove(enemies, i)
+  -- 			score = score + 1
+  -- 		end
+  -- 	end
+  -- end
 
   psystem:update(dt)
 
@@ -425,13 +388,9 @@ function game:draw()
     --needs handling outside of lazers
     myColor = {255, 255, 255, 100}
     love.graphics.setColor(myColor)
-
-
     love.graphics.circle( "line", player.x, player.y, circle.max*scale, 25 )
     love.graphics.circle( "fill", player.x, player.y, circle.size, circle.max*scale, 25 )
-
     --love.graphics.line( player.x, player.y, cat.body:getX(), cat.body:getY() )
-
   end
 
   love.graphics.setColor(250, 250, 250)
@@ -444,17 +403,15 @@ function game:draw()
     cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
   end
 
-  -- draw enemies
-  for i, enemy in ipairs(enemies) do
-    love.graphics.draw(enemy.img, enemy.x, enemy.y, 0, 1*scale, 1*scale)
-  end
+  --draw enemies
+  all_enemies.draw()
 
   -- draw bullets
   for i, bullet in ipairs(bullets) do
     love.graphics.draw(bullets.image, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
   end
 
-  love.graphics.setColor(255,255,255)
+  love.graphics.setColor(255,200,200)
   love.graphics.draw(psystem)
 
   love.graphics.setColor(255,255,255, 100)

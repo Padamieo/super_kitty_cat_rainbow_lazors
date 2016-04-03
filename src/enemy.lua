@@ -1,123 +1,116 @@
--- Import anim8
-local anim8 = require("anim8")
 
--- Load zombie sprite
-enemy_sprite = love.graphics.newImage("zombie-animation.png")
--- Create animation grid with frame's width 123, frame's height 80 and
--- grid's width/height as sprite's width/height
-enemy_grid = anim8.newGrid(123, 80, enemy_sprite:getWidth(), enemy_sprite:getHeight())
+-- enemy_sprite = love.graphics.newImage("zombie-animation.png")
+-- enemy_grid = anim8.newGrid(123, 80, enemy_sprite:getWidth(), enemy_sprite:getHeight())
 
-enemies = {}
+
+all_enemies = { something = 1}
+
+function all_enemies.create()
+  createEnemyTimerMax = 1
+  createEnemyTimer = createEnemyTimerMax
+  enemyImg = love.graphics.newImage('img/nme.png')
+  enemy_limit = 10
+  enemies = {}
+end
 
 -- Enemy class
 EnemyClass = {}
 function EnemyClass:new()
- local new_obj = {}
- self.__index = self
- return setmetatable(new_obj, self)
+  randomNumber = math.random(10, love.graphics.getWidth() - 10)
+  local new_obj = {}
+  self.__index = self
+  return setmetatable(new_obj, self)
 end
 
 function EnemyClass:create()
- -- Position
- local x, y
 
- -- We need to check distance between zomie and player becase
- -- zombie must be created not too close to player
- local near_player = true
- while near_player do
-  -- Random coordinates
-  x = love.math.random(0, love.graphics.getWidth())
-  y = love.math.random(0, love.graphics.getHeight())
+  --self:setUserData("enemy")
 
-  -- Distance between player and zombie by X
-  local dist_x = math.abs(player.body:getX() - x)
+  -- self.destroy = function ()
+  --   for i = 1, #enemies, 1 do
+  --     if self == enemies[i] then
+  --       enemies[i] = nil
+  --     end
+  --   end
+  -- end
+  --
+  --
+  -- self.anm_walk = anim8.newAnimation(enemy_grid("1-6", 1), 0.2)
+  -- self.anm_death = anim8.newAnimation(enemy_grid("1-6", 2), 0.2, self.destroy)
+  -- self.anm = self.anm_walk
 
-  -- Distance between player and zombie by Y
-  local dist_y = math.abs(player.body:getY() - y)
+  randomNumber = math.random(10, love.graphics.getWidth() - 10)
+  self.x = randomNumber
+  self.y = h
+  self.alive = true
+  self.img = enemyImg
 
-  -- If distance > 100 by X and Y then quit loop
-  if dist_x > 100 and dist_y > 100 then
-   near_player = false
+end
+
+function all_enemies.draw()
+  for i, enemy in ipairs(enemies) do
+    --love.graphics.draw(enemy.img, enemy.x, enemy.y, 0, 1*scale, 1*scale)
+    enemy:draw()
   end
- end
-
- -- Body, shape, fixture
- self.body = love.physics.newBody(world, x, y, "dynamic")
- self.shape = love.physics.newCircleShape(25)
- self.fix = love.physics.newFixture(self.body, self.shape, 5)
- self.fix:setUserData("enemy")
-
- -- Self-destroy function. Declared as table element (not as method).
- -- When you create animation you can set which function will be executed
- -- on animation playing end. With method (self:method()) you will get
- -- an error, but with function as table element it work fine.
- self.destroy = function ()
-  for i = 1, #enemies, 1 do
-   if self == enemies[i] then
-    enemies[i] = nil
-   end
-  end
- end
-
-
- self.anm_walk = anim8.newAnimation(enemy_grid("1-6", 1), 0.2)
- self.anm_death = anim8.newAnimation(enemy_grid("1-6", 2), 0.2, self.destroy)
- self.anm = self.anm_walk
 end
 
 function EnemyClass:draw()
- -- Because we need frame's with body's center in one point
- -- get coordinates moved above and left  to half of frame width or
- -- height
- local draw_x, draw_y = self.body:getWorldPoint(-40, -40)
- -- Draw animation
- self.anm:draw(enemy_sprite, draw_x, draw_y, self.body:getAngle())
+  love.graphics.draw(self.img, self.x, self.y, 0, 1*scale, 1*scale)
 end
 
-function EnemyClass:update(dt)
- -- Position
- local x, y = self.body:getPosition()
+function all_enemies.update(dt)
 
- -- Play animation
- self.anm:update(dt)
+  if cat.active == 1 then
+    createEnemyTimer = createEnemyTimer - (1 * dt)
+    if createEnemyTimer < 0 then
+      if table.getn(enemies) < enemy_limit then
+        createEnemyTimer = createEnemyTimerMax
 
- -- If fixture's userData is false,
- -- enemy was killed, show death animation.
- if not self.fix:getUserData() then
-  self.anm = self.anm_death
- -- Else move enemy to player
- else
-  -- X coordinate
-  -- Coordinates are float (not integer), we need to floor (round)
-  -- it, else enemy can do "convulsice tweeches" because to the
-  -- difference in tenths
-  if math.floor(player.body:getX() - x) ~= 0 then
-   -- If difference < 0 than player to the left of enemy
-   -- Move enemy to left
-   if (player.body:getX() - x) < 0 then
-    x = x - 20*dt
-   -- Else move enemy to right
-   else
-    x = x + 20*dt
-   end
+        enemies[#enemies + 1] = EnemyClass:new()
+        enemies[#enemies]:create()
+
+      end
+    end
+
+    for i, enemy in ipairs(enemies) do
+      enemy:update(dt, i)
+    end
+
   end
 
-  -- Y coordinate
-  if math.floor(player.body:getY() - y) ~= 0 then
-   -- If difference < 0 than, move enemy to top
-   if (player.body:getY() - y) < 0 then
-    y = y - 20*dt
-   -- Else move enemy to bottom
-   else
-    y = y + 20*dt
-   end
+  for i, enemy in ipairs(enemies) do
+  	for j, bullet in ipairs(bullets) do
+  		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, bullet.x, bullet.y, bullets.image:getWidth()*scale, bullets.image:getHeight()*scale) then
+        psystem:moveTo( enemy.x, enemy.y )
+        psystem:emit(32)
+  			table.remove(bullets, j)
+  			table.remove(enemies, i)
+  			score = score + 1
+  		end
+  	end
+
+    if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, cat.body:getX(), cat.body:getY(), 200*scale, 200*scale) then
+      print("hit")
+    end
+
   end
 
-  -- Angle enemy to player
-  local direction = math.atan2(player.body:getY() - y,
-          player.body:getX() - x)
-  self.body:setAngle(direction)
-  -- Update enemy position
-  self.body:setPosition(x, y)
- end
+end
+
+function EnemyClass:update(dt, i)
+
+    if player.lazers == true then
+      speed = 15
+      background_speed = 200
+    else
+      speed = 70
+      background_speed = 0
+    end
+
+    self.y = self.y -( speed * dt )
+
+    if self.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
+      table.remove(enemies, i)
+    end
+
 end
