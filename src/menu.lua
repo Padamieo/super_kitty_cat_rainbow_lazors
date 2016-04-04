@@ -3,8 +3,14 @@ local menu = {}
 local input = {text = ""}
 
 function menu:enter()
-  
+
   global.state = 'menu'
+
+  suit.theme.color = {
+    normal  = {bg = { 66, 66, 66, 90}, fg = {188,188,188}},
+    hovered = {bg = { 50,153,187}, fg = {255,255,255}},
+    active  = {bg = {255,153,0}, fg = {225,225,225}}
+  }
 
   love.graphics.setBackgroundColor( 0, 10, 25 )
   start = 0
@@ -23,6 +29,7 @@ function menu:update(dt)
   suit.enterFrame() -- https://love2d.org/forums/viewtopic.php?f=5&t=81522&start=20 -- SHOULD NOT BE NEEDED BUT SUIT IS A LITTLE BROKEN
 
   if(love.graphics.getWidth() == ww)then
+
   else
     ww = love.graphics.getWidth()
   end

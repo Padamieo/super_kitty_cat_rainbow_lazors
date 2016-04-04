@@ -281,7 +281,6 @@ function love.mousepressed(x, y, button, istouch)
 end
 -- end of mousepressed
 
-
 function love.mousereleased( x, y, button, istouch )
   if global.state == 'game' then
     player.touch = 0

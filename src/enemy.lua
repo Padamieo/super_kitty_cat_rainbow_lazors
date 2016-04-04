@@ -21,7 +21,7 @@ function EnemyClass:new()
   return setmetatable(new_obj, self)
 end
 
-function EnemyClass:create(i)
+function EnemyClass:create()
 
   --self:setUserData("enemy")
 
@@ -38,11 +38,14 @@ function EnemyClass:create(i)
   -- self.anm_death = anim8.newAnimation(enemy_grid("1-6", 2), 0.2, self.destroy)
   -- self.anm = self.anm_walk
 
-  randomNumber = math.random(10, love.graphics.getWidth() - 10)
-  self.x = randomNumber
+  local random_number = math.random(10, love.graphics.getWidth() - 10)
+  self.x = random_number
   self.y = h
+  self.a = 0
   self.alive = true
   self.img = enemyImg
+
+  self.x_velocity = 0
   -- self.body = HC.rectangle(self.x, self.y, enemyImg:getWidth()*scale, enemyImg:getHeight()*scale)
 
 end
@@ -54,7 +57,7 @@ function all_enemies.draw()
 end
 
 function EnemyClass:draw()
-  love.graphics.draw(self.img, self.x, self.y, 0, 1*scale, 1*scale)
+  love.graphics.draw(self.img, self.x, self.y, self.a, 1*scale, 1*scale)
   -- love.graphics.setColor(0, 255, 0, 90)
   -- self.body:draw('fill')
   -- love.graphics.setColor(255, 255, 255)
@@ -62,14 +65,13 @@ end
 
 function all_enemies.update(dt)
   if cat.active == 1 then
+
     createEnemyTimer = createEnemyTimer - (1 * dt)
     if createEnemyTimer < 0 then
       if table.getn(enemies) < enemy_limit then
         createEnemyTimer = createEnemyTimerMax
-
         enemies[#enemies + 1] = EnemyClass:new()
-        enemies[#enemies]:create(#enemies + 1)
-
+        enemies[#enemies]:create()
       end
     end
 
@@ -90,8 +92,11 @@ function all_enemies.update(dt)
   		end
   	end
 
-    if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, cat.x, cat.y, (cat.height*scale)/2, (cat.width*scale)/2) then
-      -- print("hit")
+    for i, enemy in ipairs(enemies) do
+      if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, cat.x-((cat.height*scale)/2), cat.y-((cat.width*scale)/2), (cat.height*scale), (cat.width*scale)) then
+        -- print("hit")
+        enemy.alive = false
+      end
     end
 
     -- for i, enemy in ipairs(enemies) do
@@ -115,6 +120,19 @@ function EnemyClass:update(dt, i)
 
     if self.alive == true then
       self.y = self.y -( speed * dt )
+
+      --the following is for special missile
+      self.x = self.x - self.x_velocity * dt
+      if self.x > cat.x then
+        self.x_velocity = self.x_velocity + speed * dt
+      else
+        self.x_velocity = self.x_velocity - speed * dt
+      end
+      local kitty_x = cat.x
+      local kitty_y = cat.y
+      local angle = math.atan2((kitty_y - self.y), (kitty_x - self.x))
+      self.a = angle
+
     end
 
     if self.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
