@@ -16,13 +16,12 @@ end
 -- Enemy class
 EnemyClass = {}
 function EnemyClass:new()
-  randomNumber = math.random(10, love.graphics.getWidth() - 10)
   local new_obj = {}
   self.__index = self
   return setmetatable(new_obj, self)
 end
 
-function EnemyClass:create()
+function EnemyClass:create(i)
 
   --self:setUserData("enemy")
 
@@ -44,22 +43,24 @@ function EnemyClass:create()
   self.y = h
   self.alive = true
   self.img = enemyImg
+  -- self.body = HC.rectangle(self.x, self.y, enemyImg:getWidth()*scale, enemyImg:getHeight()*scale)
 
 end
 
 function all_enemies.draw()
   for i, enemy in ipairs(enemies) do
-    --love.graphics.draw(enemy.img, enemy.x, enemy.y, 0, 1*scale, 1*scale)
     enemy:draw()
   end
 end
 
 function EnemyClass:draw()
   love.graphics.draw(self.img, self.x, self.y, 0, 1*scale, 1*scale)
+  -- love.graphics.setColor(0, 255, 0, 90)
+  -- self.body:draw('fill')
+  -- love.graphics.setColor(255, 255, 255)
 end
 
 function all_enemies.update(dt)
-
   if cat.active == 1 then
     createEnemyTimer = createEnemyTimer - (1 * dt)
     if createEnemyTimer < 0 then
@@ -67,7 +68,7 @@ function all_enemies.update(dt)
         createEnemyTimer = createEnemyTimerMax
 
         enemies[#enemies + 1] = EnemyClass:new()
-        enemies[#enemies]:create()
+        enemies[#enemies]:create(#enemies + 1)
 
       end
     end
@@ -93,8 +94,13 @@ function all_enemies.update(dt)
       -- print("hit")
     end
 
-  end
+    -- for i, enemy in ipairs(enemies) do
+    --   if sat(enemy, cat) then
+    --     print("hello")
+    --   end
+    -- end
 
+  end
 end
 
 function EnemyClass:update(dt, i)
@@ -107,10 +113,14 @@ function EnemyClass:update(dt, i)
       background_speed = 0
     end
 
-    self.y = self.y -( speed * dt )
+    if self.alive == true then
+      self.y = self.y -( speed * dt )
+    end
 
     if self.y < -love.graphics.getHeight()/10 then -- remove enemies when they pass off the screen
       table.remove(enemies, i)
     end
+
+    -- self.body:moveTo(self.x+(enemyImg:getWidth()/2), self.y+(enemyImg:getHeight()/2))
 
 end

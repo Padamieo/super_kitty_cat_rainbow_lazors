@@ -37,9 +37,11 @@ function cat.draw()
   else
     cat.anim.wait:draw(cat.image, cat.x, cat.y, cat.a,  1*scale, 1*scale, cat.height/2, cat.width/2)
   end
-  love.graphics.setColor(255, 0, 0, 90)
-  cat.body:draw('fill')
-  love.graphics.setColor(255, 255, 255)
+
+    love.graphics.rectangle( 'fill', cat.x, cat.y, (cat.height*scale)/2, (cat.width*scale)/2)
+  -- love.graphics.setColor(255, 0, 0, 90)
+  -- cat.body:draw('fill')
+  -- love.graphics.setColor(255, 255, 255)
 end
 
 function cat.update(dt)
