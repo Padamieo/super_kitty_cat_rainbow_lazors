@@ -89,8 +89,8 @@ function all_enemies.update(dt)
   		end
   	end
 
-    if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, cat.body:getX(), cat.body:getY(), 200*scale, 200*scale) then
-      print("hit")
+    if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, cat.x, cat.y, (cat.height*scale)/2, (cat.width*scale)/2) then
+      -- print("hit")
     end
 
   end

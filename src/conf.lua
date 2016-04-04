@@ -10,4 +10,6 @@ function love.conf(t)
 	t.window.fullscreen = false        -- Enable fullscreen (boolean)
 	t.window.resizable = true
 
+	t.modules.physics = false
+
 end

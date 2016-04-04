@@ -44,10 +44,10 @@ end
 function rainbow.draw()
   love.graphics.setColor(0,255,0,90)
   if cat.dir == 'fire' then
-    rainbow.anim:draw(rainbow.sprite, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
+    rainbow.anim:draw(rainbow.sprite, cat.x, cat.y+(250*scale), cat.a,  1*factor, 1*factor, 100, 100)
   else
     if rainbow.store >= 1 then
-      rainbow.anim:draw(rainbow.sprite, cat.body:getX(), cat.body:getY()+(250*scale), cat.body:getAngle(),  1*factor, 1*factor, 100, 100)
+      rainbow.anim:draw(rainbow.sprite, cat.x, cat.y+(250*scale), cat.a,  1*factor, 1*factor, 100, 100)
     end
   end
   love.graphics.setColor(255,255,255)

@@ -3,7 +3,9 @@ local menu = {}
 local input = {text = ""}
 
 function menu:enter()
-  print("menu")
+  
+  global.state = 'menu'
+
   love.graphics.setBackgroundColor( 0, 10, 25 )
   start = 0
 

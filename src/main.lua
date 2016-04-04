@@ -19,11 +19,13 @@ anim8 = require 'resources.anim8'
 
 require 'rainbow' -- brings the fire animation object
 require 'general' -- not sure this helps with speed and performance
-
 require 'enemy'
+require 'cat'
 
 HC = require 'resources.HC'
 local text = {}
+
+global = {state = ''}
 
 function love.load()
   --shader = love.graphics.newShader("v.glsl")
@@ -75,7 +77,6 @@ function more_lives()
 end
 
 player = {touch = 0, lazers = false, x = 0, y = 0, start = 0, endtime = 0, starttime}
-cat = {active = 0}
 
 --following to go in game.lua but bellow for development
 game = {}
@@ -83,37 +84,17 @@ game = {}
 -- Load some default values for our rectangle.
 function game:enter()
 
-  love.window.setMode(400,700,{vsync = false})
+  global.state = 'game'
 
-  first_move = 0
+  -- love.window.setMode(400,700,{vsync = false})
   score = 0
-
-  world = {}
-  love.physics.setMeter(10)
-  world = love.physics.newWorld(0, 80, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
-
-  characters = {
-    default = { height = 50, width = 50, image = 'img/placeholder_kitty.png' } -- placeholder_kitty
-  }
+  gravity = 100
 
   h = love.graphics.getHeight()
   w = love.graphics.getWidth()
-  x_value = (w/2)
-  y_value = ((h/4)*3)
 
-  cat = {active = 0, x = x_value, y = y_value, image = nil }
-  cat.image = love.graphics.newImage(characters["default"].image)
-  anim = anim8.newGrid(200, 200, cat.image:getWidth(), cat.image:getHeight())
-  cat.anim = {
-    wait = anim8.newAnimation(anim('2-2', 1), 0.1),
-    rainbow = anim8.newAnimation(anim('1-1', 1), 0.1)
-  }
-
-  cat.body = love.physics.newBody(world, cat.x, cat.y, "dynamic") -- static or kinematic
-  cat.shape = love.physics.newRectangleShape(characters["default"].height*scale, characters["default"].width*scale)
-  cat.fixture = love.physics.newFixture(cat.body, cat.shape)
-  cat.fixture:setRestitution(0.9) -- bounce
-  cat.body:setMass(100)--test
+  --create our cat character
+  cat.create()
 
   -- create the rainbow fire object
   rainbow.create()
@@ -162,6 +143,7 @@ function game:enter()
   firesound = {s1,s2}
   fireset = 1
   --src1:setPitch(0.5) -- one octave lower
+
 end
 -- game enter end
 
@@ -170,10 +152,6 @@ function game:update(dt)
 
   -- dt_time = dt
   -- shader:send("dt_time", dt_time)
-
-  if cat.active == 1 then
-    world:update(dt) -- physics
-  end
 
   if love.keyboard.isDown('escape') then
     love.event.push("quit")
@@ -184,45 +162,14 @@ function game:update(dt)
     startShake(1, 1)
   end
 
-  if player.lazers == true then
+  cat.update(dt)
 
-    offset = cat.body:getY()-(h/8)
-    cat.body:setY(cat.body:getY() - (offset*1*dt))
-    --cat.body:setLinearVelocity(0,(offset*1*dt))
-    cat.body:setLinearVelocity(0, 1)
-    cat.dir = 'fire'
-
-  else
-    cat.dir = 'n'
-  end
-
-  --animation set
-  if cat.dir == 'fire' then
-    --startShake(1, 1)
-    cat.anim.rainbow:update(dt)
-  else
-    cat.anim.wait:update(dt)
+  if cat.dead == true then
+    return gamestate.switch(menu)
   end
 
   -- animation for rainbow fire
   rainbow.update(dt)
-
-  -- if below edge end game return to menu for now
-  if (cat.body:getY() > h-(h/10)) then
-    lives = lives - 1
-    if score > total_score then
-      total_score = score
-    end
-
-    if lives == 8 then
-      death_timestap = os.time()
-      love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. death_timestap)
-    else
-      love.filesystem.write("scores.lua", total_score .. "\n" .. lives .. "\n" .. death_timestap)
-    end
-
-    return gamestate.switch(menu)
-  end
 
   if player.touch == 1 then
     player.x = love.mouse.getX( )
@@ -245,7 +192,6 @@ function game:update(dt)
         player.lazers = true
         canShoot = false
       end
-      --print(player.endtime)
     end
 
   else
@@ -303,55 +249,63 @@ function game:update(dt)
     bg2.y = bg1.y - bg2.height
   end
 
-  --update end
 end
+-- update end
 
 function love.touchpressed( id, x, y, pressure )
   print("touchpressed")
 end
 
 function love.mousepressed(x, y, button, istouch)
-  circle.size = 0
+  if global.state == 'game' then
+    circle.size = 0
 
-  if cat.active == 0 then
-    cat.active = 1
-    player.touch = 1
-    player.start = love.timer.getTime( )
-    player.endtime = love.timer.getTime( ) + 0.8
-  else
-
-    player.touch = 1
-    player.start = love.timer.getTime( )
-    player.endtime = love.timer.getTime( ) + 0.8
-
-    if istouch then
-      print("istouch")
+    if cat.active == 0 then
+      cat.active = 1
+      player.touch = 1
+      player.start = love.timer.getTime( )
+      player.endtime = love.timer.getTime( ) + 0.8
     else
-      print("notouch")
+
+      player.touch = 1
+      player.start = love.timer.getTime( )
+      player.endtime = love.timer.getTime( ) + 0.8
+
+      if istouch then
+        print("istouch")
+      else
+        print("notouch")
+      end
     end
   end
-
 end
 -- end of mousepressed
 
 
 function love.mousereleased( x, y, button, istouch )
-  player.touch = 0
-  player.lazers = false
-  circle.size = 0
+  if global.state == 'game' then
+    player.touch = 0
+    player.lazers = false
+    circle.size = 0
 
-  --if player.endtime ~= nil then
+    --if player.endtime ~= nil then
     time = love.timer.getTime( )
     if time < player.endtime and canShoot then
 
       local mouseX = player.x
       local mouseY = player.y
-      local angle = math.atan2((mouseY - cat.body:getY()), (mouseX - cat.body:getX()))
+      local angle = math.atan2((mouseY - cat.y), (mouseX - cat.x))
 
-      local bulletDx = 800 * math.cos(angle)
-      local bulletDy = 800 * math.sin(angle)
+      if h > 800 then
+        fire_speed = h
+      else
+        fire_speed = 800
+      end
 
-      newBullet = { x = cat.body:getX(), y = cat.body:getY(), dx = bulletDx, dy = bulletDy, a = angle }
+      local bulletDx = fire_speed * math.cos(angle)
+      local bulletDy = fire_speed * math.sin(angle)
+
+      newBullet = { x = cat.x, y = cat.y, dx = bulletDx, dy = bulletDy, a = angle }
 
       table.insert(bullets, newBullet)
       canShoot = false
@@ -364,8 +318,8 @@ function love.mousereleased( x, y, button, istouch )
       end
       firesound[fireset]:play()
     end
-  --end
-
+    --end
+  end
 end
 -- end of mousereleased
 
@@ -389,19 +343,15 @@ function game:draw()
     myColor = {255, 255, 255, 100}
     love.graphics.setColor(myColor)
     love.graphics.circle( "line", player.x, player.y, circle.max*scale, 25 )
-    love.graphics.circle( "fill", player.x, player.y, circle.size, circle.max*scale, 25 )
+    love.graphics.circle( "fill", player.x, player.y, circle.size*scale, circle.max*scale, 25 )
     --love.graphics.line( player.x, player.y, cat.body:getX(), cat.body:getY() )
   end
 
-  love.graphics.setColor(250, 250, 250)
+  --draw the cat character
+  cat.draw()
 
+  --draw the rainbow
   rainbow.draw()
-
-  if cat.dir == 'fire' then
-    cat.anim.rainbow:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
-  else
-    cat.anim.wait:draw(cat.image, cat.body:getX(), cat.body:getY(), cat.body:getAngle(),  1*scale, 1*scale, 100, 100)
-  end
 
   --draw enemies
   all_enemies.draw()
