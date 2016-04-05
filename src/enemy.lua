@@ -52,7 +52,19 @@ end
 
 function all_enemies.draw()
   for i, enemy in ipairs(enemies) do
+
+    -- temp for testing
+    if i == 1 then
+      love.graphics.setColor(0, 50, 255, 90)
+    end
+
     enemy:draw()
+
+    -- temp for testing
+    if i == 1 then
+      love.graphics.setColor(255, 255, 255)
+    end
+
   end
 end
 
@@ -93,10 +105,19 @@ function all_enemies.update(dt)
   	end
 
     for i, enemy in ipairs(enemies) do
+
+      if i == 1 then
+        -- enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, enemy.a
+        -- a = polygon{v(enemy.x, enemy.y),v(0,1),v(1,1),v(1,0)}
+        -- b = polygon{v(cat.x, cat.y),v(0,1),v(1,1),v(1,0)}
+
+      end
+
       if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth()*scale, enemy.img:getHeight()*scale, cat.x-((cat.height*scale)/2), cat.y-((cat.width*scale)/2), (cat.height*scale), (cat.width*scale)) then
         -- print("hit")
         enemy.alive = false
       end
+
     end
 
     -- for i, enemy in ipairs(enemies) do

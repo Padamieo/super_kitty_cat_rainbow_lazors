@@ -15,6 +15,7 @@ lick.reset = true
 menu = require "menu"
 --game = require "game" -- currently bellow
 
+camera = require "camera"
 anim8 = require 'resources.anim8'
 
 require 'rainbow' -- brings the fire animation object
@@ -144,6 +145,11 @@ function game:enter()
   fireset = 1
   --src1:setPitch(0.5) -- one octave lower
 
+
+  test = love.graphics.newImage('img/placeholder.png')
+  camera:setScale(1, 1)
+  camera:setPosition(0, 0)
+
 end
 -- game enter end
 
@@ -159,7 +165,10 @@ function game:update(dt)
 
   -- for playing around with screen shake
   if love.keyboard.isDown('m') then
-    startShake(1, 1)
+    -- startShake(1, 1)
+    camera.time = camera.time + dt
+    camera.x = camera.xmag * math.cos(camera.time * camera.speed * 2)
+    camera.y = camera.ymag * math.cos(camera.time * camera.speed)
   end
 
   cat.update(dt)
@@ -327,6 +336,9 @@ end
 -- game draw.
 function game:draw()
 
+  camera:set()
+  love.graphics.translate(math.floor(camera.x), math.floor(camera.y))
+
   -- if player.lazers == true then
   --love.graphics.setShader(shader)
   -- else
@@ -363,6 +375,8 @@ function game:draw()
   love.graphics.setColor(255,200,200)
   love.graphics.draw(psystem)
 
+
+
   love.graphics.setColor(255,255,255, 100)
   love.graphics.print(score, 10, hh-30)
 
@@ -378,7 +392,31 @@ function game:draw()
   love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
   --love.graphics.setShader()
 
+  -- -- testing rotation shows top left remain at x y
+  love.graphics.setColor(255,255,255, 90)
+  love.graphics.draw( test, 10, 300, 0 )
+  d = math.rad(-45)
+  love.graphics.draw( test, 10, 300, d )
+
+  --was hopeing the following
+  local trx = 10+test:getWidth()
+  local try = 300
+  local aa = d
+  local z = rotate(10,300,trx,try,aa)
+  -- print(z.y)
+  love.graphics.setColor(255,255,0, 90)
+  love.graphics.draw( test, z.x, z.y, 0)
+
+  camera:unset()
+
 end
 -- end of game draw
+
+function rotate(x,y,ox,oy,a)
+  o = {}
+  o.x = (x-ox)*math.cos(a) - (y-oy)*math.sin(a) + ox
+  o.y = (x-ox)*math.sin(a) + (y-oy)*math.cos(a) + oy
+  return o
+end
 
 return game
