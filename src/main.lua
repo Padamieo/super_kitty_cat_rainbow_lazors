@@ -370,6 +370,9 @@ function game:draw()
   -- draw bullets
   for i, bullet in ipairs(bullets) do
     love.graphics.draw(bullets.image, bullet.x, bullet.y, bullet.a, 1*scale, 1*scale)
+    love.graphics.setColor(0,255,255, 90)
+    love.graphics.draw(bullets.image, bullet.x, bullet.y, 0, 1*scale, 1*scale)
+    love.graphics.setColor(255,255,255)
   end
 
   love.graphics.setColor(255,200,200)
