@@ -397,25 +397,24 @@ function game:draw()
 
   -- -- testing rotation shows top left remain at x y
   love.graphics.setColor(255,255,255, 90)
-  local x_x = 100
-  local y_y = 200
-  love.graphics.draw( test, x_x, y_y, 0 )
-  d = math.rad(90)
-  love.graphics.draw( test, x_x, y_y, d )
+  local xx = 100
+  local yy = 200
+  love.graphics.draw( test, xx, yy, 0 )
+  d = math.rad(-45)
+  love.graphics.draw( test, xx, yy, d )
 
   --was hopeing the following
 
-  -- local trx = x_x
-  local trx = x_x+test:getWidth()
+  local trx = xx -- +test:getWidth()
 
-  -- local try = y_y
-  local try = y_y+test:getHeight()
+  local try = yy+test:getHeight()
 
-  local z = rotate(x_x,y_y,trx,try,d)
+  local z = rotate(xx,yy,trx,try,d)
 
-  -- print(z.y)
+  love.graphics.setColor(255,0,255, 90)
+  love.graphics.draw( test, trx, try, 0)
+
   love.graphics.setColor(255,255,0, 90)
-  print(z.x)
   love.graphics.draw( test, z.x, z.y, 0)
 
   camera:unset()
@@ -439,8 +438,12 @@ end
 
 function rotate(x0, y0, x, y, theta)
   o = {}
-  o.x = x0+(x-x0)*math.cos(theta)+(y-y0)*math.sin(theta)
-  o.y = y0-(x-x0)*math.sin(theta)+(y-y0)*math.cos(theta)
+  -- worked for tr
+  -- o.x = x0+(x-x0)*math.cos(theta)+(y-y0)*math.sin(theta)
+  -- o.y = y0+(x-x0)*math.sin(theta)+(y-y0)*math.cos(theta)
+
+    o.x = x0+(x-x0)*math.cos(theta)-(y-y0)*math.sin(theta)
+    o.y = y0+(x-x0)*math.sin(theta)-(y-y0)*math.cos(theta)
   return o
 end
 

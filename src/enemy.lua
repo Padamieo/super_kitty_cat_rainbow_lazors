@@ -46,6 +46,12 @@ function EnemyClass:create()
   self.img = enemyImg
 
   self.x_velocity = 0
+  self.max_velocity = 200
+
+  name = 'standard'
+
+  self.name  = name
+
   -- self.body = HC.rectangle(self.x, self.y, enemyImg:getWidth()*scale, enemyImg:getHeight()*scale)
 
 end
@@ -142,17 +148,19 @@ function EnemyClass:update(dt, i)
     if self.alive == true then
       self.y = self.y -( speed * dt )
 
-      --the following is for special missile
-      self.x = self.x - self.x_velocity * dt
-      if self.x > cat.x then
-        self.x_velocity = self.x_velocity + speed * dt
-      else
-        self.x_velocity = self.x_velocity - speed * dt
+      if self.name == 'seeker' then
+        --the following is for special missile
+        self.x = self.x - self.x_velocity * dt
+        if self.x > cat.x then
+          self.x_velocity = self.x_velocity + speed * dt
+        else
+          self.x_velocity = self.x_velocity - speed * dt
+        end
+        local kitty_x = cat.x
+        local kitty_y = cat.y
+        local angle = math.atan2((kitty_y - self.y), (kitty_x - self.x))
+        self.a = angle
       end
-      local kitty_x = cat.x
-      local kitty_y = cat.y
-      local angle = math.atan2((kitty_y - self.y), (kitty_x - self.x))
-      self.a = angle
 
     end
 
